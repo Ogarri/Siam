@@ -29,8 +29,3 @@ body {
     background-size: cover; /* L'image prend toute la case sans déborder */
     margin-left: -2px;
 }
-
-#titre {
-    background-image: url('assets/Titre.png');
-    display: flex;
-}
