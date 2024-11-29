@@ -3,6 +3,8 @@ console.log("vue chargée");
 const nb_ligne = 7;
 const nb_col = 5;   
 
+let pieceSelectionnee = null;
+
 document.addEventListener('DOMContentLoaded', function() {
 
   const plateau = document.getElementById('plateau');
@@ -34,7 +36,25 @@ document.addEventListener('DOMContentLoaded', function() {
     var caillou_case = document.getElementById(`case-3-${i}`);
     caillou_case.style.backgroundImage = `url('assets/Caillou${k}.png')`;
   }
+
+  casesContainer.addEventListener('click', function(event) {
+    const caseCliquee = event.target;
+    if (caseCliquee.classList.contains('case')) {
+      if (pieceSelectionnee) {
+        const nouvellePosition = obtenirPositionDepuisId(caseCliquee.id);
+        deplacerPiece(pieceSelectionnee, nouvellePosition);
+        pieceSelectionnee = null;
+      } else if (caseCliquee.style.backgroundImage) {
+        pieceSelectionnee = caseCliquee;
+      }
+    }
+  });
 });
+
+function obtenirPositionDepuisId(id) {
+  const [_, x, y] = id.split('-');
+  return { x: parseInt(x), y: parseInt(y) };
+}
 
 function aleatoire (a, b) {
   return Math.round(Math.random() * (b - a) + a)
