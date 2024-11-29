@@ -4,7 +4,7 @@ const nb_ligne = 7;
 const nb_col = 5;   
 
 let pieceSelectionnee = null;
-var tableau = []
+let tableau = [];
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
           caseElement.classList.add('case');
           caseElement.id = `case-${i}-${j}`;
           casesContainer.append(caseElement);
+          tableau.push(caseElement.id);
           
       }
   }
@@ -46,3 +47,4 @@ document.addEventListener('DOMContentLoaded', function() {
 function aleatoire (a, b) {
   return Math.round(Math.random() * (b - a) + a)
 }
+export { tableau };
