@@ -61,10 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
   let click1Done = false;
   let pionSelectionne = null;
 
+  console.log("Selectionnez une pièce a bouger :")
   Array.from(pions).forEach(pion => {
     pion.addEventListener('click', (event) => {
         if (!click1Done) {
-            console.log("click 1");
+            console.log("La pièce a été sélectionnée !");
+            console.log("Selectionnez où vous voulez la déplacer :")
             compt++;
             console.log(compt);
             if (pion.getAttribute('case_vide') == 'false' && !(pion.getAttribute('couleur') == 'caillou')) {
@@ -90,18 +92,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 }
+                pionSelectionne = pion;
+                click1Done = true;
+            } else {
+                click1Done = false;
+                pionSelectionne = null;
+                compt -= 1;
+                console.log("Fail");
             }
-            pionSelectionne = pion
-            click1Done = true;
         } else {
-            console.log("click 2");
+            console.log("Bougée !");
             if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
                 pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
                 pionSelectionne.style.backgroundImage = null;
-                pion.setAttribute('case_vide', true);
-                pionSelectionne.setAttribute('case_vide', false);
+                pion.setAttribute('case_vide', 'false');
+                pionSelectionne.setAttribute('case_vide', 'true');
                 pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
                 pionSelectionne.setAttribute('couleur', null);
+            } else {
+                console.log("fail");
             }
             pionSelectionne = null;
             click1Done = false;
@@ -113,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function aleatoire (a, b) {
   return Math.round(Math.random() * (b - a) + a)
 }
-
 
 /*
 let joueurActif = "Rouge"; 
