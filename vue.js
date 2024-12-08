@@ -64,8 +64,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (!firstClickDone) {
   var temp_i = 0;
+
   for (let i = 0; i < pions.length && !loopStop; i++) {
-      pions[i].addEventListener('click', (event) => {
+      pions[i].addEventListener('click', () => {
         temp_i = i;
         firstClickDone = true;
         console.log('click 1');
@@ -108,10 +109,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  } else {
 let loopStop2 = false;
   for (let k = 0; k < pions.length && !loopStop2; k++) {
-    pions[k].addEventListener('click', (event) => {
+    pions[k].addEventListener('click', () => {
       console.log('click 2');
       if (pions[k].getAttribute('case_vide') == 'true') {
         let temp = pions[k].style.backgroundImage;
@@ -135,6 +135,7 @@ let loopStop2 = false;
 function aleatoire (a, b) {
   return Math.round(Math.random() * (b - a) + a)
 }
+
 
 /*
 let joueurActif = "Rouge"; 
