@@ -55,64 +55,82 @@ document.addEventListener('DOMContentLoaded', function() {
     [5, 3], [5, 4]
   ];
   const position_banc_rouge = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]];
-const position_banc_bleu = [[6, 0], [6, 1], [6, 2], [6, 3], [6, 4]];
+  const position_banc_bleu = [[6, 0],[6, 1], [6, 2], [6, 3], [6, 4]];
 
-let loopStop = false;
+  let loopStop = false;
+  let compt = 0;
+  let firstClickDone = false;
+  let secondClickDone = false;
 
-function handleClick1(i) {
-  return function() {
-    console.log('click 1');
-    if (pions[i].getAttribute('case_vide') == 'false') {
-      if (pions[i].getAttribute('couleur') == 'rouge') {
-        position_mise_en_jeu.forEach(([x, y]) => {
-          const caseElement = document.getElementById(`case-${x}-${y}`);
-          if (caseElement) {
-            caseElement.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
-          }
-        });
-      }
-
-      if (pions[i].getAttribute('couleur') == 'bleu') {
-        position_mise_en_jeu.forEach(([x, y]) => {
-          const caseElement = document.getElementById(`case-${x}-${y}`);
-          if (caseElement) {
-            caseElement.style.backgroundColor = 'rgba(0, 0, 255, 0.5)';
-          }
-        });
-      }
-
-      let compt = 0;
-      let loopStop2 = false;
-
-      function handleClick2(k) {
-        return function() {
-          console.log('click 2');
-          if (pions[k].getAttribute('case_vide') == 'true') {
-            let temp = pions[k].style.backgroundImage;
-            pions[k].style.backgroundImage = pions[i].style.backgroundImage;
+  if (!firstClickDone && !secondClickDone) {
+  var temp_i = 0;
+  for (let i = 0; i < pions.length && !loopStop; i++) {
+      pions[i].addEventListener('click', (event) => {
+        temp_i = i;
+        firstClickDone = true;
+        console.log('click 1');
+        if (pions[i].getAttribute('case_vide') == 'false') {
+          if (pions[i].getAttribute('couleur') == 'rouge') { 
             if (compt < 3) {
-              pions[i].style.backgroundImage = '';
+              position_mise_en_jeu.forEach(([x, y]) => {
+                const caseElement = document.getElementById(`case-${x}-${y}`);
+                if (caseElement) {
+                  caseElement.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+                }
+              });
             } else {
-              pions[i].style.backgroundImage = temp;
+              position_mise_en_jeu.forEach(([x, y]) => {
+                const caseElement = document.getElementById(`case-${x}-${y}`);
+                if (caseElement) {
+                  caseElement.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                }
+              });
             }
-            compt++;
-            loopStop2 = true;
-            loopStop = true;
           }
-        };
+        
+          if (compt < 3) {
+            if (pions[i].getAttribute('couleur') == 'bleu') {
+            position_mise_en_jeu.forEach(([x, y]) => {
+                const caseElement = document.getElementById(`case-${x}-${y}`);
+                if (caseElement) {
+                  caseElement.style.backgroundColor = 'rgba(0, 0, 255, 0.5)';
+                }
+            });
+          } else {
+            position_mise_en_jeu.forEach(([x, y]) => {
+              const caseElement = document.getElementById(`case-${x}-${y}`);
+              if (caseElement) {
+                caseElement.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+              }
+            });
+          }
+          }
       }
+    });
+  }
+  }
 
-      for (let k = 0; k < pions.length && !loopStop2; k++) {
-        pions[k].removeEventListener('click', handleClick2(k));
-        pions[k].addEventListener('click', handleClick2(k));
+if (firstClickDone && !secondClickDone) {
+let loopStop2 = false;
+  for (let k = 0; k < pions.length && !loopStop2; k++) {
+    pions[k].addEventListener('click', (event) => {
+      console.log('click 2');
+      if (pions[k].getAttribute('case_vide') == 'true') {
+        let temp = pions[k].style.backgroundImage;
+        pions[k].style.backgroundImage = pions[temp_i].style.backgroundImage;
+        if (compt < 3) {
+          pions[temp_i].style.backgroundImage = '';
+        } else {
+          pions[temp_i].style.backgroundImage = temp;
+        }
+        compt++;
+        loopStop2 = true;
+        loopStop = true;
       }
-    }
-  };
-}
-
-for (let i = 0; i < pions.length && !loopStop; i++) {
-  pions[i].removeEventListener('click', handleClick1(i));
-  pions[i].addEventListener('click', handleClick1(i));
+    })
+    firstClickDone = false;
+    secondClickDone = true;
+  }
 }
 });
                 
