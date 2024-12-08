@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let firstClickDone = false;
   let secondClickDone = false;
 
-  if (!firstClickDone && !secondClickDone) {
+  if (!firstClickDone) {
   var temp_i = 0;
   for (let i = 0; i < pions.length && !loopStop; i++) {
       pions[i].addEventListener('click', (event) => {
@@ -108,9 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  }
-
-if (firstClickDone && !secondClickDone) {
+  } else {
 let loopStop2 = false;
   for (let k = 0; k < pions.length && !loopStop2; k++) {
     pions[k].addEventListener('click', (event) => {
@@ -134,9 +132,6 @@ let loopStop2 = false;
 }
 });
                 
-      
-
-
 function aleatoire (a, b) {
   return Math.round(Math.random() * (b - a) + a)
 }
