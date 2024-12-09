@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let tourBleu = true;
 
   console.log("Selectionnez une pièce a bouger :")
+  
   function marquerMiseEnJeu(pion, color, cases) {
     cases.forEach(([x, y]) => {
         const caseElement = document.getElementById(`case-${x}-${y}`);
@@ -81,8 +82,12 @@ function PermierClickk(pion) {
     pion.style.border = "2px solid red";
     compt++;
     console.log(compt);
+    const pionPosition = pion.id.split('-').slice(1).map(Number); // Assuming pion id is in the format 'case-x-y'
+    const isInBancRouge = position_banc_rouge.some(([x, y]) => x === pionPosition[0] && y === pionPosition[1]);
+    const isInBancBleu = position_banc_bleu.some(([x, y]) => x === pionPosition[0] && y === pionPosition[1]);
 
-    if (pion.getAttribute('case_vide') == 'false' && pion.getAttribute('couleur') != 'caillou') {
+
+    if (pion.getAttribute('case_vide') == 'false' && pion.getAttribute('couleur') != 'caillou' && (isInBancRouge || isInBancBleu)) {
         if (compt < 3) {
             const color = pion.getAttribute('couleur') == 'rouge' ? 'rgba(255, 0, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)';
             marquerMiseEnJeu(pion, color, position_mise_en_jeu);
@@ -101,7 +106,6 @@ function PermierClickk(pion) {
         pion.style.border = 'none';
     }
 }
-
 function FaireSecondClick(pion) {
     pionRef = pion;
     if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
