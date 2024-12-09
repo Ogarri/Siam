@@ -137,19 +137,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const rotationContainer = document.getElementById('rotation-container');
                 const orientations = {devant: '0', droite: '90', arriere: '180', gauche: '270'};
+                const pionRef = pion;
 
                 Object.keys(orientations).forEach(orientation => {
                     const button = document.createElement('button');
                     button.innerText = orientation;
                     button.addEventListener('click', () => {
                         console.log(`Orientation choisie : ${orientations[orientation]}°`);
-                        pion.style.border = null;
+                        pionRef.style.border = '0px sodid black';
+                        pionRef.style.transform = `rotate(${orientations[orientation]}deg)`;
                     });
-                    if (compt <= 1) {
-                        rotationContainer.appendChild(button);
-                    }
+                    if (compt <= 1) rotationContainer.appendChild(button);
                     click2Done = true;
                 });
+
+                const finishButton = document.createElement('button');
+                finishButton.innerText = 'Terminer';
+                finishButton.addEventListener('click', () => {
+                    console.log('rotation terminée');
+                    const buttons = rotationContainer.getElementsByTagName('button');
+                    for (let i = 0; i < buttons.length; i++) {
+                        buttons[i].disabled = true;
+                    }
+                });
+                if (compt <= 1) rotationContainer.appendChild(finishButton);
             } else {
                 console.log("fail");
                 compt -= 1;
