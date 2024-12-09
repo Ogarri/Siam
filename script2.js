@@ -49,17 +49,30 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   const pions = document.getElementsByClassName('case');
-  const position_mise_en_jeu = [
-    [1, 0], [1, 1], [1, 3], [1, 4], [2, 0], [2, 4], 
-    [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], 
-    [5, 3], [5, 4]
-  ];
+  const position_mise_en_jeu = [[1, 0], [1, 1], [1, 3], [1, 4], [2, 0], [2, 4], [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], [5, 3], [5, 4]];
+  const cases_inaccecibles_debut = [[1, 2], [2, 1], [2, 2], [2, 3], [4, 1], [4, 2], [4, 3], [5, 2]]
   const position_banc_rouge = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]];
   const position_banc_bleu = [[6, 0],[6, 1], [6, 2], [6, 3], [6, 4]];
 
   let compt = 0;
   let click1Done = false;
   let pionSelectionne = null;
+
+  if (compt < 3) {
+    cases_inaccecibles_debut.forEach(([x, y]) => {
+        const caseElement = document.getElementById(`case-${x}-${y}`);
+        if (caseElement) {
+            caseElement.style.backgroundImage = "url('assets/croix.png')";
+        }
+    })
+  } else if (compt >= 3) {
+    cases_inaccecibles_debut.forEach(([x, y]) => {
+        const caseElement = document.getElementById(`case-${x}-${y}`);
+        if (caseElement) {
+            caseElement.style.backgroundImage = " ";
+        }
+    })
+  }
 
   console.log("Selectionnez une pièce a bouger :")
   Array.from(pions).forEach(pion => {
@@ -101,47 +114,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Fail");
             }
         } else {
-            
-            if (compt < 3) {
-                const [x1, y1] = pionSelectionne.id.split('-').slice(1).map(Number);
-                const [x2, y2] = pion.id.split('-').slice(1).map(Number);
-                for (let i = 0; i < position_mise_en_jeu.length; i++) {
-                    if ([x2, y2] == position_mise_en_jeu[i]) {
-                        console.log("Bougée !");
-                        if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
-                            pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                            pionSelectionne.style.backgroundImage = null;
-                            pion.setAttribute('case_vide', 'false');
-                            pionSelectionne.setAttribute('case_vide', 'true');
-                            pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                            pionSelectionne.setAttribute('couleur', null);
+            console.log("Bougée !");
+            if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
+                pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                pionSelectionne.style.backgroundImage = null;
+                pion.setAttribute('case_vide', 'false');
+                pionSelectionne.setAttribute('case_vide', 'true');
+                pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                pionSelectionne.setAttribute('couleur', null);
 
-                            const pionSelectionneId = pionSelectionne.id;
-                            pionSelectionne.id = pion.id;
-                            pion.id = pionSelectionneId;
-                        }
-                    }
-                }
+                const pionSelectionneId = pionSelectionne.id;
+                pionSelectionne.id = pion.id;
+                pion.id = pionSelectionneId;
             } else {
-                console.log("Bougée !");
-                if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
-                    pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                    pionSelectionne.style.backgroundImage = null;
-                    pion.setAttribute('case_vide', 'false');
-                    pionSelectionne.setAttribute('case_vide', 'true');
-                    pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                    pionSelectionne.setAttribute('couleur', null);
-    
-                    const pionSelectionneId = pionSelectionne.id;
-                    pionSelectionne.id = pion.id;
-                    pion.id = pionSelectionneId;
-                } else {
-                    console.log("fail");
-                }
-                pionSelectionne = null;
-                click1Done = false;
-
+                console.log("fail");
             }
+            pionSelectionne = null;
+            click1Done = false;
         }
     });
 });
