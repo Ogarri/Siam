@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let click1Done = false;
   let pionSelectionne = null;
   let buttonsDispo = false;
+  let pionRef = null;
 
   console.log("Selectionnez une pièce a bouger :")
   Array.from(pions).forEach(pion => {
@@ -116,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Fail");
             }
         } else {
-            const pionRef = pion;
+            pionRef = pion;
             if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
                 console.log("Bougée !");
                 pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
