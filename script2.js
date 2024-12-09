@@ -45,131 +45,127 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const pions = document.getElementsByClassName('case');
   const position_mise_en_jeu = [[1, 0], [1, 1], [1, 3], [1, 4], [2, 0], [2, 4], [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], [5, 3], [5, 4]];
-  const cases_inaccecibles_debut = [[1, 2], [2, 1], [2, 2], [2, 3], [4, 1], [4, 2], [4, 3], [5, 2]]
+  const cases_inaccecibles_debut = [[1, 2], [5, 2]]
   const position_banc_rouge = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]];
   const position_banc_bleu = [[6, 0],[6, 1], [6, 2], [6, 3], [6, 4]];
 
   let compt = 0;
   let click1Done = false;
   let pionSelectionne = null;
-  let buttonsDispo = false;
   let pionRef = null;
+  let tourBleu = true;
 
   console.log("Selectionnez une pièce a bouger :")
-  Array.from(pions).forEach(pion => {
+  function highlightCases(pion, color, cases) {
+    cases.forEach(([x, y]) => {
+        const caseElement = document.getElementById(`case-${x}-${y}`);
+        if (caseElement) {
+            caseElement.style.backgroundColor = color;
+        }
+    });
+}
+
+function marquerCasesInaccessibles(cases, image, isEmpty) {
+    cases.forEach(([x, y]) => {
+        const caseElement = document.getElementById(`case-${x}-${y}`);
+        if (caseElement) {
+            caseElement.style.backgroundImage = image;
+            caseElement.setAttribute('case_vide', isEmpty);
+        }
+    });
+}
+
+function PermierClickk(pion) {
+    console.log("La pièce a été sélectionnée !");
+    console.log("Selectionnez où vous voulez la déplacer :");
+    pion.style.border = "2px solid red";
+    compt++;
+    console.log(compt);
+
+    if (pion.getAttribute('case_vide') == 'false' && pion.getAttribute('couleur') != 'caillou') {
+        if (compt < 3) {
+            const color = pion.getAttribute('couleur') == 'rouge' ? 'rgba(255, 0, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)';
+            highlightCases(pion, color, position_mise_en_jeu);
+            marquerCasesInaccessibles(cases_inaccecibles_debut, `url('assets/croix.png')`, false);
+        } else {
+            highlightCases(pion, 'transparent', position_mise_en_jeu);
+            marquerCasesInaccessibles(cases_inaccecibles_debut, null, true);
+        }
+        pionSelectionne = pion;
+        click1Done = true;
+    } else {
+        click1Done = false;
+        pionSelectionne = null;
+        compt--;
+        console.log("Fail");
+        pion.style.border = 'none';
+    }
+}
+
+function FaireSecondClick(pion) {
+    pionRef = pion;
+    if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
+        const couleurPionSelectionne = pionSelectionne.getAttribute('couleur');
+        if ((tourBleu && couleurPionSelectionne === 'bleu') || (!tourBleu && couleurPionSelectionne === 'rouge')) {
+            console.log("Bougée !");
+            pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
+            pionSelectionne.style.backgroundImage = null;
+            pionSelectionne.style.backgroundColor = 'transparent';
+            pion.style.backgroundColor = 'transparent';
+            pion.setAttribute('case_vide', 'false');
+            pionSelectionne.setAttribute('case_vide', 'true');
+            pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+            pionSelectionne.setAttribute('couleur', null);
+            pionSelectionne.style.border = 'none';
+            pion.style.border = "2px solid red";
+            const x_y_pion_id = obtenirCoordonnees(pion.id);
+            enleverElement(position_mise_en_jeu, x_y_pion_id);
+
+            const rotationContainer = document.getElementById('rotation-container');
+            const orientations = {devant: '0', droite: '90', arriere: '180', gauche: '270'};
+
+            Object.keys(orientations).forEach(orientation => {
+                const button = document.createElement('button');
+                button.innerText = orientation;
+                button.addEventListener('click', () => {
+                    console.log(`Orientation choisie : ${orientations[orientation]}°`);
+                    pionRef.style.transform = `rotate(${orientations[orientation]}deg)`;
+                });
+                if (compt <= 1) rotationContainer.appendChild(button);
+            });
+
+            const finishButton = document.createElement('button');
+            finishButton.innerText = 'Terminer';
+            finishButton.addEventListener('click', () => {
+                console.log('rotation terminée');
+                const buttons = rotationContainer.getElementsByTagName('button');
+                for (let i = 0; i < buttons.length; i++) {
+                    pionRef.style.border = 'none';
+                }
+                tourBleu = !tourBleu;
+            });
+            if (compt <= 1) rotationContainer.appendChild(finishButton);
+        } else {
+            console.log("ce n'est pas votre tour !");
+            compt--;
+            pionSelectionne.style.border = 'none';
+        }
+    } else {
+        console.log("fail");
+        compt--;
+        pionSelectionne.style.border = 'none';
+    }
+    pionSelectionne = null;
+    pion = null;
+    click1Done = false;
+}
+
+Array.from(pions).forEach(pion => {
     pion.addEventListener('click', (event) => {
         if (!click1Done) {
-            console.log("La pièce a été sélectionnée !");
-            console.log("Selectionnez où vous voulez la déplacer :")
-            pion.style.border = "2px solid red";
-            compt++;
-            console.log(compt);
-            if (pion.getAttribute('case_vide') == 'false' && !(pion.getAttribute('couleur') == 'caillou')) {
-                if (pion.getAttribute('couleur') == 'rouge' && compt < 3) {
-                    position_mise_en_jeu.forEach(([x, y]) => {
-                        const caseElement = document.getElementById(`case-${x}-${y}`);
-                        if (caseElement) {
-                            caseElement.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
-                        }
-                    });
-                    cases_inaccecibles_debut.forEach(([x, y]) => {
-                        const caseElement = document.getElementById(`case-${x}-${y}`);
-                        if (caseElement) {
-                            caseElement.style.backgroundImage = `url('assets/croix.png')`;
-                            caseElement.setAttribute('case_vide', false);
-                        }
-                    });
-                } else if (pion.getAttribute('couleur') == 'bleu' && compt < 3) {
-                    position_mise_en_jeu.forEach(([x, y]) => {
-                        const caseElement = document.getElementById(`case-${x}-${y}`);
-                        if (caseElement) {
-                            caseElement.style.backgroundColor = 'rgba(0, 0, 255, 0.5)';
-                        }
-                    });
-                    cases_inaccecibles_debut.forEach(([x, y]) => {
-                        const caseElement = document.getElementById(`case-${x}-${y}`);
-                        if (caseElement) {
-                            caseElement.style.backgroundImage = `url('assets/croix.png')`;
-                            caseElement.setAttribute('case_vide', false);
-                        }
-                    });
-                } else if (compt >= 3) {
-                    position_mise_en_jeu.forEach(([x, y]) => {
-                        const caseElement = document.getElementById(`case-${x}-${y}`);
-                        if (caseElement) {
-                            caseElement.style.backgroundColor = 'transparent';
-                        }
-                    });
-                    cases_inaccecibles_debut.forEach(([x, y]) => {
-                        const caseElement = document.getElementById(`case-${x}-${y}`);
-                        if (caseElement) {
-                            caseElement.style.backgroundImage = null;
-                            caseElement.setAttribute('case_vide', true);
-                        }
-                    });
-                }
-                pionSelectionne = pion;
-                click1Done = true;
-            } else {
-                click1Done = false;
-                pionSelectionne = null;
-                compt -= 1;
-                console.log("Fail");
-            }
+            PermierClickk(pion);
         } else {
-            pionRef = pion;
-            if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
-                console.log("Bougée !");
-                pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                pionSelectionne.style.backgroundImage = null;
-                pionSelectionne.style.backgroundColor = 'transparent';
-                pion.style.backgroundColor = 'transparent';
-                pion.setAttribute('case_vide', 'false');
-                pionSelectionne.setAttribute('case_vide', 'true');
-                pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                pionSelectionne.setAttribute('couleur', null);
-                pionSelectionne.style.border = null;
-                pion.style.border = "2px solid red";
-                const x_y_pion_id = obtenirCoordonnees(pion.id);
-                enleverElement(position_mise_en_jeu, x_y_pion_id);
-                const pionSelectionneId = pionSelectionne.id;
-                pionSelectionne.id = pion.id;
-                pion.id = pionSelectionneId;
-
-                const rotationContainer = document.getElementById('rotation-container');
-                const orientations = {devant: '0', droite: '90', arriere: '180', gauche: '270'};
-
-                Object.keys(orientations).forEach(orientation => {
-                    const button = document.createElement('button');
-                    button.innerText = orientation;
-                    button.addEventListener('click', () => {
-                        console.log(`Orientation choisie : ${orientations[orientation]}°`);
-                        pionRef.style.transform = `rotate(${orientations[orientation]}deg)`;
-                    });
-                    if (compt <= 1) rotationContainer.appendChild(button);
-                });
-
-                const finishButton = document.createElement('button');
-                finishButton.innerText = 'Terminer';
-                finishButton.addEventListener('click', () => {
-                    console.log('rotation terminée');
-                    const buttons = rotationContainer.getElementsByTagName('button');
-                    for (let i = 0; i < buttons.length; i++) {
-                        pionRef.style.border = '0px solid black'
-                    }
-                });
-                if (compt <= 1) rotationContainer.appendChild(finishButton);
-
-                if (!buttonsDispo) {
-                    //Compléter
-                }
-            } else {
-                console.log("fail");
-                compt -= 1;
-            }
-            pionSelectionne = null;
-            pion = null;
-            click1Done = false;
+            FaireSecondClick(pion);
         }
     });
 });
