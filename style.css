@@ -1,0 +1,32 @@
+body {
+    background-color: black;
+}
+
+#plateau {
+    background-size: 600px; /*Permet de garder l'image entière*/
+    background-position: center; /*Permet de centrer l'image*/
+    background-repeat: no-repeat; /*Empêche l'image de se répéter*/
+    display: flex; /*Permet de centrer les éléments*/
+    justify-content: center; /*Permet de centrer les éléments*/
+    align-items: center; /*Permet de centrer les éléments*/
+}
+
+#cases-container {
+    display: grid;
+    grid-template-columns: repeat(5, 111px); /* 7 colonnes */
+    grid-template-rows: repeat(7, 111px); /* 5 lignes */
+    gap: 3px; /* Espace entre les cases */
+    justify-content: center; /* Centre les cases horizontalement */
+    align-items: center; /* Centre les cases verticalement */
+}
+
+.case {
+    width: 100%; /* Prend une largeur de 116px */
+    height: 100%; /* Prend une hauteur de 116px */
+    display: grid; /* Permet de centrer les éléments */
+    background-repeat: no-repeat; /* Empêche l'image de se répéter */
+    background-position: center; /* Centre l'image dans la case */
+    background-size: cover; /* L'image prend toute la case sans déborder */
+    margin-left: -2px;
+}
+
