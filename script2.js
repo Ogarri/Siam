@@ -51,13 +51,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let compt = 0;
   let click1Done = false;
-  let click2Done = true;
   let pionSelectionne = null;
+  let buttonsDispo = false;
 
   console.log("Selectionnez une pièce a bouger :")
   Array.from(pions).forEach(pion => {
     pion.addEventListener('click', (event) => {
-        if (!click1Done && click2Done) {
+        if (!click1Done) {
             console.log("La pièce a été sélectionnée !");
             console.log("Selectionnez où vous voulez la déplacer :")
             pion.style.border = "2px solid red";
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Fail");
             }
         } else {
-            click2Done = false;
+            const pionRef = pion;
             if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
                 console.log("Bougée !");
                 pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
@@ -137,18 +137,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const rotationContainer = document.getElementById('rotation-container');
                 const orientations = {devant: '0', droite: '90', arriere: '180', gauche: '270'};
-                const pionRef = pion;
 
                 Object.keys(orientations).forEach(orientation => {
                     const button = document.createElement('button');
                     button.innerText = orientation;
                     button.addEventListener('click', () => {
                         console.log(`Orientation choisie : ${orientations[orientation]}°`);
-                        pionRef.style.border = '0px sodid black';
                         pionRef.style.transform = `rotate(${orientations[orientation]}deg)`;
                     });
                     if (compt <= 1) rotationContainer.appendChild(button);
-                    click2Done = true;
                 });
 
                 const finishButton = document.createElement('button');
@@ -157,10 +154,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('rotation terminée');
                     const buttons = rotationContainer.getElementsByTagName('button');
                     for (let i = 0; i < buttons.length; i++) {
-                        buttons[i].disabled = true;
+                        pionRef.style.border = '0px solid black'
                     }
                 });
                 if (compt <= 1) rotationContainer.appendChild(finishButton);
+
+                if (!buttonsDispo) {
+                    //Compléter
+                }
             } else {
                 console.log("fail");
                 compt -= 1;
