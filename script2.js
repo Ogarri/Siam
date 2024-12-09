@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const plateau = document.getElementById('plateau');
   const casesContainer = document.getElementById('cases-container');
-  const selection = document.getElementById('selection');
 
   plateau.style.backgroundImage = `url('assets/plateau.png')`;
 
@@ -52,12 +51,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let compt = 0;
   let click1Done = false;
+  let click2Done = true;
   let pionSelectionne = null;
 
   console.log("Selectionnez une pièce a bouger :")
   Array.from(pions).forEach(pion => {
     pion.addEventListener('click', (event) => {
-        if (!click1Done) {
+        if (!click1Done && click2Done) {
             console.log("La pièce a été sélectionnée !");
             console.log("Selectionnez où vous voulez la déplacer :")
             pion.style.border = "2px solid red";
@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Fail");
             }
         } else {
+            click2Done = false;
             if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
                 console.log("Bougée !");
                 pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
@@ -127,11 +128,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
                 pionSelectionne.setAttribute('couleur', null);
                 pionSelectionne.style.border = null;
+                pion.style.border = "2px solid red";
                 const x_y_pion_id = obtenirCoordonnees(pion.id);
                 enleverElement(position_mise_en_jeu, x_y_pion_id);
                 const pionSelectionneId = pionSelectionne.id;
                 pionSelectionne.id = pion.id;
                 pion.id = pionSelectionneId;
+
+                const rotationContainer = document.getElementById('rotation-container');
+                const orientations = {devant: '0', droite: '90', arriere: '180', gauche: '270'};
+
+                Object.keys(orientations).forEach(orientation => {
+                    const button = document.createElement('button');
+                    button.innerText = orientation;
+                    button.addEventListener('click', () => {
+                        console.log(`Orientation choisie : ${orientations[orientation]}°`);
+                        pion.style.border = null;
+                    });
+                    if (compt <= 1) {
+                        rotationContainer.appendChild(button);
+                    }
+                    click2Done = true;
+                });
             } else {
                 console.log("fail");
                 compt -= 1;
