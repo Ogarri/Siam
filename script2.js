@@ -58,22 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
   let click1Done = false;
   let pionSelectionne = null;
 
-  if (compt < 3) {
-    cases_inaccecibles_debut.forEach(([x, y]) => {
-        const caseElement = document.getElementById(`case-${x}-${y}`);
-        if (caseElement) {
-            caseElement.style.backgroundImage = "url('assets/croix.png')";
-        }
-    })
-  } else if (compt >= 3) {
-    cases_inaccecibles_debut.forEach(([x, y]) => {
-        const caseElement = document.getElementById(`case-${x}-${y}`);
-        if (caseElement) {
-            caseElement.style.backgroundImage = " ";
-        }
-    })
-  }
-
   console.log("Selectionnez une pièce a bouger :")
   Array.from(pions).forEach(pion => {
     pion.addEventListener('click', (event) => {
@@ -90,6 +74,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             caseElement.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
                         }
                     });
+                    cases_inaccecibles_debut.forEach(([x, y]) => {
+                        const caseElement = document.getElementById(`case-${x}-${y}`);
+                        if (caseElement) {
+                            caseElement.style.backgroundImage = `url('assets/croix.png')`;
+                            caseElement.setAttribute('case_vide', false);
+                        }
+                    });
                 } else if (pion.getAttribute('couleur') == 'bleu' && compt < 3) {
                     position_mise_en_jeu.forEach(([x, y]) => {
                         const caseElement = document.getElementById(`case-${x}-${y}`);
@@ -97,11 +88,25 @@ document.addEventListener('DOMContentLoaded', function() {
                             caseElement.style.backgroundColor = 'rgba(0, 0, 255, 0.5)';
                         }
                     });
+                    cases_inaccecibles_debut.forEach(([x, y]) => {
+                        const caseElement = document.getElementById(`case-${x}-${y}`);
+                        if (caseElement) {
+                            caseElement.style.backgroundImage = `url('assets/croix.png')`;
+                            caseElement.setAttribute('case_vide', false);
+                        }
+                    });
                 } else if (compt >= 3) {
                     position_mise_en_jeu.forEach(([x, y]) => {
                         const caseElement = document.getElementById(`case-${x}-${y}`);
                         if (caseElement) {
-                            caseElement.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                            caseElement.style.backgroundColor = 'transparent';
+                        }
+                    });
+                    cases_inaccecibles_debut.forEach(([x, y]) => {
+                        const caseElement = document.getElementById(`case-${x}-${y}`);
+                        if (caseElement) {
+                            caseElement.style.backgroundImage = null;
+                            caseElement.setAttribute('case_vide', true);
                         }
                     });
                 }
@@ -114,22 +119,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Fail");
             }
         } else {
-            console.log("Bougée !");
             if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
+                console.log("Bougée !");
                 pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
                 pionSelectionne.style.backgroundImage = null;
+                pionSelectionne.style.backgroundColor = 'transparent';
+                pion.style.backgroundColor = 'transparent';
                 pion.setAttribute('case_vide', 'false');
                 pionSelectionne.setAttribute('case_vide', 'true');
                 pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
                 pionSelectionne.setAttribute('couleur', null);
-
+                const x_y_pion_id = obtenirCoordonnees(pion.id);
+                enleverElement(position_mise_en_jeu, x_y_pion_id);
                 const pionSelectionneId = pionSelectionne.id;
                 pionSelectionne.id = pion.id;
                 pion.id = pionSelectionneId;
             } else {
                 console.log("fail");
+                compt -= 1;
             }
             pionSelectionne = null;
+            pion = null;
             click1Done = false;
         }
     });
@@ -138,6 +148,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 
 function aleatoire (a, b) {
   return Math.round(Math.random() * (b - a) + a)
+}
+
+function enleverElement(tab, element) {
+    const index = tab.findIndex(item => item[0] === element[0] && item[1] === element[1]);
+    if (index > -1) {
+        tab.splice(index, 1);
+    }
+    return tab;
+}
+
+function obtenirCoordonnees(id) {
+    const parts = id.split('-');
+    const x = parseInt(parts[1], 10);
+    const y = parseInt(parts[2], 10);
+    return [x, y];
 }
 
 
