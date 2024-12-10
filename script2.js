@@ -3,8 +3,16 @@ const nb_col = 5;
 
 document.addEventListener('DOMContentLoaded', function() {
 
+  const plateauContainer = document.createElement('div');
+  plateauContainer.id = 'plateau-container';
+  document.body.appendChild(plateauContainer);
+
   const plateau = document.getElementById('plateau');
   const casesContainer = document.getElementById('cases-container');
+  plateauContainer.appendChild(plateau);
+
+  const rotationContainer = document.getElementById('rotation-container');
+  plateauContainer.appendChild(rotationContainer);
 
   plateau.style.backgroundImage = `url('assets/plateau.png')`;
 
@@ -44,7 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   const pions = document.getElementsByClassName('case');
-  const position_mise_en_jeu = [[1, 0], [1, 1], [1, 3], [1, 4], [2, 0], [2, 4], [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], [5, 3], [5, 4]];
+  const position_mise_en_jeu = [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 4], [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], [5, 2], [5, 3], [5, 4]];
+  const position_en_jeu = [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 4], [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], [5, 2], [5, 3], [5, 4]];
   const cases_inaccecibles_debut = [[1, 2], [5, 2]]
   const position_banc_rouge = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]];
   const position_banc_bleu = [[6, 0],[6, 1], [6, 2], [6, 3], [6, 4]];
@@ -82,12 +91,13 @@ function PermierClickk(pion) {
     pion.style.border = "2px solid red";
     compt++;
     console.log(compt);
+
     const pionPosition = pion.id.split('-').slice(1).map(Number); // Assuming pion id is in the format 'case-x-y'
     const isInBancRouge = position_banc_rouge.some(([x, y]) => x === pionPosition[0] && y === pionPosition[1]);
     const isInBancBleu = position_banc_bleu.some(([x, y]) => x === pionPosition[0] && y === pionPosition[1]);
 
 
-    if (pion.getAttribute('case_vide') == 'false' && pion.getAttribute('couleur') != 'caillou' && (isInBancRouge || isInBancBleu)) {
+    if (pion.getAttribute('case_vide') == 'false' && pion.getAttribute('couleur') != 'caillou') {
         if (compt < 3) {
             const color = pion.getAttribute('couleur') == 'rouge' ? 'rgba(255, 0, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)';
             marquerMiseEnJeu(pion, color, position_mise_en_jeu);
@@ -108,6 +118,39 @@ function PermierClickk(pion) {
 }
 function FaireSecondClick(pion) {
     pionRef = pion;
+    const coordPionSelectionne = obtenirCoordonnees(pionSelectionne.id);
+    const coordPion = obtenirCoordonnees(pion.id);
+    const save = (appartientALaListe(coordPionSelectionne, position_banc_rouge) || appartientALaListe(coordPionSelectionne, position_banc_bleu)) && !appartientALaListe(coordPion, position_mise_en_jeu);
+    
+    if ((appartientALaListe(coordPionSelectionne, position_banc_rouge) || appartientALaListe(coordPionSelectionne, position_banc_bleu)) && !appartientALaListe(coordPion, position_mise_en_jeu)) {
+        console.log("Vous ne pouvez pas déplacer la pièce ici !");
+        compt--;
+        pionSelectionne.style.border = 'none';
+        pionSelectionne = null;
+        pion = null;
+        click1Done = false;
+        return;
+    }
+    if (appartientALaListe(coordPionSelectionne, position_en_jeu)) {
+        const deplacementsPossibles = [[coordPion[0] - 1, coordPion[1]], [coordPion[0] + 1, coordPion[1]], [coordPion[0], coordPion[1] - 1], [coordPion[0], coordPion[1] + 1]];
+        if (!deplacementsPossibles.some(([x, y]) => x === coordPionSelectionne[0] && y === coordPionSelectionne[1])) {
+            console.log("Vous ne pouvez pas déplacer la pièce ici !");
+            compt--;
+            pionSelectionne.style.border = 'none';
+            pionSelectionne = null;
+            pion = null;
+            click1Done = false;
+            return;
+        } else if (appartientALaListe(coordPion, position_banc_rouge) || appartientALaListe(coordPion, position_banc_bleu)) {
+            console.log("Vous ne pouvez pas déplacer la pièce ici !");
+            compt--;
+            pionSelectionne.style.border = 'none';
+            pionSelectionne = null;
+            pion = null;
+            click1Done = false;
+            return;
+        }
+    }
     if (pion !== pionSelectionne && pion.getAttribute('case_vide') == 'true') {
         const couleurPionSelectionne = pionSelectionne.getAttribute('couleur');
         if ((tourBleu && couleurPionSelectionne === 'bleu') || (!tourBleu && couleurPionSelectionne === 'rouge')) {
@@ -122,15 +165,17 @@ function FaireSecondClick(pion) {
             pionSelectionne.setAttribute('couleur', null);
             pionSelectionne.style.border = 'none';
             pion.style.border = "2px solid red";
+            pion.style.transform = pionSelectionne.style.transform;
             const x_y_pion_id = obtenirCoordonnees(pion.id);
             enleverElement(position_mise_en_jeu, x_y_pion_id);
 
-            const rotationContainer = document.getElementById('rotation-container');
             const orientations = {devant: '0', droite: '90', arriere: '180', gauche: '270'};
 
             Object.keys(orientations).forEach(orientation => {
                 const button = document.createElement('button');
                 button.innerText = orientation;
+                button.classList.add('rotation-button');
+                button.style.gridArea = orientation;
                 button.addEventListener('click', () => {
                     console.log(`Orientation choisie : ${orientations[orientation]}°`);
                     pionRef.style.transform = `rotate(${orientations[orientation]}deg)`;
@@ -140,6 +185,8 @@ function FaireSecondClick(pion) {
 
             const finishButton = document.createElement('button');
             finishButton.innerText = 'Terminer';
+            finishButton.id = 'finish-button';
+            finishButton.classList.add('rotation-button');
             finishButton.addEventListener('click', () => {
                 console.log('rotation terminée');
                 const buttons = rotationContainer.getElementsByTagName('button');
@@ -147,12 +194,15 @@ function FaireSecondClick(pion) {
                     pionRef.style.border = 'none';
                 }
                 tourBleu = !tourBleu;
+                tourTexte.innerText = tourBleu ? 'Tour: Bleu' : 'Tour: Rouge';
+                tourTexte.style.color = tourBleu ? 'blue' : 'red';
             });
             if (compt <= 1) rotationContainer.appendChild(finishButton);
         } else {
             console.log("ce n'est pas votre tour !");
             compt--;
-            pionSelectionne.style.border = 'none';
+         
+   pionSelectionne.style.border = 'none';
         }
     } else {
         console.log("fail");
@@ -173,6 +223,12 @@ Array.from(pions).forEach(pion => {
         }
     });
 });
+
+const tourTexte = document.createElement('div');
+tourTexte.id = 'tour-texte';
+tourTexte.innerText = tourBleu ? 'Tour: Bleu' : 'Tour: Rouge';
+tourTexte.style.color = tourBleu ? 'blue' : 'red';
+rotationContainer.appendChild(tourTexte);
 });
                 
 function aleatoire (a, b) {
@@ -192,6 +248,11 @@ function obtenirCoordonnees(id) {
     const x = parseInt(parts[1], 10);
     const y = parseInt(parts[2], 10);
     return [x, y];
+}
+
+function appartientALaListe(coordonnees, liste) {
+    if (!liste) return false;
+    return liste.some(([x, y]) => x === coordonnees[0] && y === coordonnees[1]);
 }
 
 

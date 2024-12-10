@@ -11,6 +11,12 @@ body {
     align-items: center; /*Permet de centrer les éléments*/
 }
 
+#plateau-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #cases-container {
     display: grid;
     grid-template-columns: repeat(5, 111px); /* 7 colonnes */
@@ -31,16 +37,56 @@ body {
 }
 
 #rotation-container {
-    display: flex;
+    display: grid;
+    grid-template-areas: 
+        "tour devant ."
+        "gauche . droite"
+        ". arriere terminer";
+    gap: 10px;
     justify-content: center;
     margin-top: 20px;
+    margin-left: 20px;
 }
 
 .rotation-button {
-    margin: 0 10px;
-    padding: 10px;
+    padding: 10px 20px;
     background-color: #fff;
-    border: 1px solid #000;
+    border: 2px solid #000;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.rotation-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+}
+
+#tour-texte {
+    margin: 10px;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #000;
+    border-radius: 5px;
+    background-color: #fff;
+    text-align: center;
+    grid-area: tour;
+}
+
+#finish-button {
+    grid-area: terminer;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #fff;
+    border: 2px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+#finish-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
 }
 
