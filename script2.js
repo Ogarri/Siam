@@ -282,84 +282,198 @@ document.addEventListener('DOMContentLoaded', function() {
     pousserButton.id = 'pousser-button';
     pousserButton.classList.add('rotation-button');
     pousserButton.addEventListener('click', () => {
-        if (pionSelectionne) {
-            let puissancePerso = 2;
-            let puissanceContre = 0;
-            let pionSelectionneCouleur = pionSelectionne.getAttribute('couleur');
-            let regard = pionSelectionne;
-            const pionDevant = obtenirPionDevant(regard);
-            const pionDevantTrouve = aPionDevant(regard);
-            console.log('Pion devant:', pionDevant);
-            console.log('Pion devant trouvé:', pionDevantTrouve);
-        
-            if (pionDevantTrouve) {
-                console.log('Pion devant trouvé:', pionDevant);
-            } else {
-                console.error('Aucun pion devant trouvé.');
-            }
-        
-            if (pionSelectionne.style.transform == 'rotate(0deg)') {
-                if (pionDevant && pionDevant.style.transform == 'rotate(180deg)' && pionDevant.getAttribute('couleur') != 'caillou') {
-                    puissanceContre += 2;
-                }
-                if (pionDevant && pionDevant.getAttribute('couleur') == 'caillou') {
-                    puissanceContre += 1;
-                }
-                if (pionDevant && pionDevant.getAttribute('couleur') == pionSelectionneCouleur) {
+        console.log('Boutton cliqué');
+        let puissancePerso = 2;
+        let puissanceAdversaire = 0;
+        const couleur = pionSelectionne.getAttribute('couleur');
+
+        if (obtenirOrientation(pionSelectionne) == 'rotate(0deg)') {
+            console.log('Orientation : devant');
+            let orientationInverse = 'rotate(180deg)';
+            let pionDevant1 = null, pionDevant2 = null, pionDevant3 = null, pionDevant4 = null;
+            if (aPionDevant(pionSelectionne)) pionDevant1 = obtenirPionDevant(pionSelectionne);
+            if (pionDevant1 && aPionDevant(pionDevant1)) pionDevant2 = obtenirPionDevant(pionDevant1);
+            if (pionDevant2 && aPionDevant(pionDevant2)) pionDevant3 = obtenirPionDevant(pionDevant2);
+            if (pionDevant3 && aPionDevant(pionDevant3)) pionDevant4 = obtenirPionDevant(pionDevant3);
+            console.log('PionSelectionne : ', pionSelectionne);
+            console.log('pionDevant1 : ', pionDevant1);
+            console.log('pionDevant2 : ', pionDevant2);
+            console.log('pionDevant3 : ', pionDevant3);
+            if (pionDevant1 && pionDevant1.getAttribute('couleur') == couleur && obtenirOrientation(pionDevant1) == 'rotate(0deg)') {
+                puissancePerso += 2;
+                console.log("puissancePerso : ", puissancePerso);
+                if (pionDevant2 && pionDevant2.getAttribute('couleur') == couleur && obtenirOrientation(pionDevant2) == 'rotate(0deg)') {
                     puissancePerso += 2;
+                    console.log("puissancePerso : ", puissancePerso);
+                    if (pionDevant3 && pionDevant3.getAttribute('couleur') == couleur && obtenirOrientation(pionDevant3) == 'rotate(0deg)') {
+                        puissancePerso += 2;
+                        console.log("puissancePerso : ", puissancePerso);
+                    }
                 }
-            } else {
-                console.log('Le pion sélectionné n\'est pas dans la bonne orientation.');
+            }
+            if (pionDevant1 && pionDevant1.getAttribute('couleur') == 'rouge' && obtenirOrientation(pionDevant1) == orientationInverse) {
+                puissanceAdversaire += 2;
+                console.log("puissanceAdversaire : ", puissanceAdversaire);
+                if (pionDevant2 && pionDevant2.getAttribute('couleur') == 'rouge' && obtenirOrientation(pionDevant2) == orientationInverse) {
+                    puissanceAdversaire += 2;
+                    console.log("puissanceAdversaire : ", puissanceAdversaire);
+                    if (pionDevant3 && pionDevant3.getAttribute('couleur') == 'rouge' && obtenirOrientation(pionDevant3) == orientationInverse) {
+                        puissanceAdversaire += 2;
+                        console.log("puissanceAdversaire : ", puissanceAdversaire);
+                    }
+                }
+            } else if (pionDevant1 && pionDevant1.getAttribute('couleur') == 'caillou') {
+                puissanceAdversaire += 1;
+                console.log("puissanceAdversaire : ", puissanceAdversaire);
+                if (pionDevant2 && pionDevant2.getAttribute('couleur') == 'caillou') {
+                    puissanceAdversaire += 1;
+                    console.log("puissanceAdversaire : ", puissanceAdversaire);
+                    if (pionDevant3 && pionDevant3.getAttribute('couleur') == 'caillou') {
+                        puissanceAdversaire += 1;
+                        console.log("puissanceAdversaire : ", puissanceAdversaire);
+                    }
+                }
             }
         
-            console.log('Transformation du pion sélectionné:', pionSelectionne.style.transform);
-            console.log('Puissance personnelle:', puissancePerso);
-            console.log('Puissance contre:', puissanceContre);
+        } else if (obtenirOrientation(pionSelectionne) == 'rotate(180deg)') {
+            console.log('Orientation : derriere');
+            let pionDerriere1 = null, pionDerriere2 = null, pionDerriere3 = null;
+            if (aPionDerriere(pionSelectionne)) pionDerriere1 = obtenirPionDerriere(pionSelectionne);
+            if (pionDerriere1 && aPionDerriere(pionDerriere1)) pionDerriere2 = obtenirPionDerriere(pionDerriere1);
+            if (pionDerriere2 && aPionDerriere(pionDerriere2)) pionDerriere3 = obtenirPionDerriere(pionDerriere2);
+            console.log('PionSelectionne : ', pionSelectionne);
+            console.log('pionDerriere1 : ', pionDerriere1);
+            console.log('pionDerriere2 : ', pionDerriere2);
+            console.log('pionDerriere3 : ', pionDerriere3);
+            if (pionDerriere1 && pionDerriere1.getAttribute('couleur') == couleur && obtenirOrientation(pionDerriere1) == 'rotate(180deg)') {
+                puissancePerso += 2;
+                console.log("puissancePerso : ", puissancePerso);
+                if (pionDerriere2 && pionDerriere2.getAttribute('couleur') == couleur && obtenirOrientation(pionDerriere2) == 'rotate(180deg)') {
+                    puissancePerso += 2;
+                    console.log("puissancePerso : ", puissancePerso);
+                    if (pionDerriere3 && pionDerriere3.getAttribute('couleur') == couleur && obtenirOrientation(pionDerriere3) == 'rotate(180deg)') {
+                        puissancePerso += 2;
+                        console.log("puissancePerso : ", puissancePerso);
+                    }
+                }
+            }
+        } else if (obtenirOrientation(pionSelectionne) == 'rotate(270deg)') {
+            console.log('Orientation : gauche');
+            let pionGauche1 = null, pionGauche2 = null, pionGauche3 = null;
+            if (aPionGauche(pionSelectionne)) pionGauche1 = obtenirPionGauche(pionSelectionne);
+            if (pionGauche1 && aPionGauche(pionGauche1)) pionGauche2 = obtenirPionGauche(pionGauche1);
+            if (pionGauche2 && aPionGauche(pionGauche2)) pionGauche3 = obtenirPionGauche(pionGauche2);
+            console.log('PionSelectionne : ', pionSelectionne);
+            console.log('pionGauche1 : ', pionGauche1);
+            console.log('pionGauche2 : ', pionGauche2);
+            console.log('pionGauche3 : ', pionGauche3);
+            if (pionGauche1 && pionGauche1.getAttribute('couleur') == couleur && obtenirOrientation(pionGauche1) == 'rotate(270deg)') {
+                puissancePerso += 2;
+                console.log("puissancePerso : ", puissancePerso);
+                if (pionGauche2 && pionGauche2.getAttribute('couleur') == couleur && obtenirOrientation(pionGauche2) == 'rotate(270deg)') {
+                    puissancePerso += 2;
+                    console.log("puissancePerso : ", puissancePerso);
+                    if (pionGauche3 && pionGauche3.getAttribute('couleur') == couleur && obtenirOrientation(pionGauche3) == 'rotate(270deg)') {
+                        puissancePerso += 2;
+                        console.log("puissancePerso : ", puissancePerso);
+                    }
+                }
+            } 
+        } else if (obtenirOrientation(pionSelectionne) == 'rotate(90deg)') {
+            console.log('Orientation : droite');
+            let pionDroite1 = null, pionDroite2 = null, pionDroite3 = null;
+            if (aPionDroite(pionSelectionne)) pionDroite1 = obtenirPionDroite(pionSelectionne);
+            if (pionDroite1 && aPionDroite(pionDroite1)) pionDroite2 = obtenirPionDroite(pionDroite1);
+            if (pionDroite2 && aPionDroite(pionDroite2)) pionDroite3 = obtenirPionDroite(pionDroite2);
+            console.log('PionSelectionne : ', pionSelectionne);
+            console.log('pionDroite1 : ', pionDroite1);
+            console.log('pionDroite2 : ', pionDroite2);
+            console.log('pionDroite3 : ', pionDroite3);
+            if (pionDroite1 && pionDroite1.getAttribute('couleur') == couleur && obtenirOrientation(pionDroite1) == 'rotate(90deg)') {
+                puissancePerso += 2;
+                console.log("puissancePerso : ", puissancePerso);
+                if (pionDroite2 && pionDroite2.getAttribute('couleur') == couleur && obtenirOrientation(pionDroite2) == 'rotate(90deg)') {
+                    puissancePerso += 2;
+                    console.log("puissancePerso : ", puissancePerso);
+                    if (pionDroite3 && pionDroite3.getAttribute('couleur') == couleur && obtenirOrientation(pionDroite3) == 'rotate(90deg)') {
+                        puissancePerso += 2;
+                        console.log("puissancePerso : ", puissancePerso);
+                    }
+                }
+            }  
         } else {
-            console.error('Aucun pion sélectionné.');
-        }    
+            console.log('Orientation non reconnue');
+        }
+
     });
     rotationContainer.appendChild(pousserButton);
 
     function obtenirPionDevant(pion) {
         const coord = obtenirCoordonnees(pion.id);
-        console.log('Coordonnées du pion:', coord);
         const x = coord[0] - 1;
         const y = coord[1];
-        console.log('Coordonnées du pion devant:', obtenirCoordonnees(`pion-${x}-${y}`));
-        console.log('case pour le f :', document.getElementById(`pion-${x}-${y}`));
-        return document.getElementById(`pion-${x}-${y}`);
+        if (x < nb_ligne) {
+            return document.getElementById(`case-${x}-${y}`);
+        } else {
+            console.log('Hors du plateau');
+            return null;
+        }
     }
-    
+
     function aPionDevant(pion) {
         const pionDevant = obtenirPionDevant(pion);
-        if (!pionDevant) {
-            console.error('Aucun pion devant trouvé.');
-            return false;
-        }
-        return pionDevant.getAttribute('couleur') !== null;
+        return pionDevant && pionDevant.getAttribute('couleur') !== null;
     }
     
     function obtenirPionDerriere(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0] + 1;
         const y = coord[1];
-        return document.getElementById(`pion-${x}-${y}`);
+        if (x < nb_ligne) {
+            return document.getElementById(`case-${x}-${y}`);
+        } else {
+            console.log('Hors du plateau');
+            return null;
+        }
     }
     
+    function aPionDerriere(pion) {
+        const pionDerriere = obtenirPionDerriere(pion);
+        return pionDerriere && pionDerriere.getAttribute('couleur') !== null;
+    }
     
     function obtenirPionGauche(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0];
         const y = coord[1] - 1;
-        return document.getElementById(`pion-${x}-${y}`);
+        if (y >= 0) {
+            return document.getElementById(`case-${x}-${y}`);
+        } else {
+            console.log('Hors du plateau');
+            return null;
+        }
+    }
+
+    function aPionGauche(pion) {
+        const pionGauche = obtenirPionGauche(pion);
+        return pionGauche && pionGauche.getAttribute('couleur') !== null;
     }
     
     function obtenirPionDroite(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0];
         const y = coord[1] + 1;
-        return document.getElementById(`pion-${x}-${y}`);
+        if (y < nb_col) {
+            return document.getElementById(`case-${x}-${y}`);
+        } else {
+            console.log('Hors du plateau');
+            return null;
+        }
+    }
+
+    function aPionDroite(pion) {
+        const pionDroite = obtenirPionDroite(pion);
+        return pionDroite && pionDroite.getAttribute('couleur') !== null;
     }
     
 });
@@ -400,8 +514,6 @@ function appartientALaListe(coordonnees, liste) {
     return false;
 }
 
-
-
-function obtenorOrientation(pion) {
+function obtenirOrientation(pion) {
     return pion.style.transform;
 }
