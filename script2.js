@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         enleverBordures();
         pion.style.border = "2px solid red";
         compt++;
-        
+
         const pionPosition = pion.id.split('-').slice(1).map(Number); // Assuming pion id is in the format 'case-x-y'
         const isInBancRouge = position_banc_rouge.some(([x, y]) => x === pionPosition[0] && y === pionPosition[1]);
         const isInBancBleu = position_banc_bleu.some(([x, y]) => x === pionPosition[0] && y === pionPosition[1]);
@@ -167,18 +167,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if ((appartientALaListe(coordPionSelectionne, position_banc_rouge) || appartientALaListe(coordPionSelectionne, position_banc_bleu)) && !appartientALaListe(coordPion, position_mise_en_jeu)) {
             console.log("Vous ne pouvez pas déplacer la pièce ici !");
-            terminerTour();
             return;
         }
         if (appartientALaListe(coordPionSelectionne, position_en_jeu)) {
             const deplacementsPossibles = [[coordPion[0] - 1, coordPion[1]], [coordPion[0] + 1, coordPion[1]], [coordPion[0], coordPion[1] - 1], [coordPion[0], coordPion[1] + 1]];
             if (!deplacementsPossibles.some(([x, y]) => x === coordPionSelectionne[0] && y === coordPionSelectionne[1])) {
                 console.log("Vous ne pouvez pas déplacer la pièce ici !");
-                terminerTour();
                 return;
             } else if (appartientALaListe(coordPion, position_banc_rouge) || appartientALaListe(coordPion, position_banc_bleu)) {
                 console.log("Vous ne pouvez pas déplacer la pièce ici !");
-                terminerTour();
                 return;
             }
         }
@@ -201,11 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 vientDeBouger = true;
             } else {
                 console.log("ce n'est pas votre tour !");
-                terminerTour();
             }
         } else {
             console.log("fail");
-            terminerTour();
         }
     }
 
@@ -279,6 +274,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     rotationContainer.appendChild(backPion);
+
+    const pousserButton = document.createElement('button');
+    pousserButton.innerText = 'Pousser';
+    pousserButton.id = 'pousser-button';
+    pousserButton.classList.add('rotation-button');
+    pousserButton.addEventListener('click', () => {
+        //A FAIRE
+    });
+    rotationContainer.appendChild(pousserButton);
 
     console.log(position_mise_en_jeu);
     console.log(appartientALaListe([4, 0], position_mise_en_jeu));

@@ -41,37 +41,34 @@ body {
     grid-template-areas: 
         "tour devant ."
         "gauche . droite"
-        ". arriere terminer";
+        "pousser arriere terminer";
     gap: 10px;
     justify-content: center;
     margin-top: 20px;
     margin-left: 20px;
 }
 
-.rotation-button {
+.rotation-button, #tour-texte {
     padding: 10px 20px;
     background-color: #fff;
     border: 2px solid #000;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
+    font-size: 18px;
+    text-align: center;
 }
 
-.rotation-button:hover {
+.rotation-button:hover, #tour-texte:hover {
     background-color: #f0f0f0;
     transform: scale(1.1);
 }
 
 #tour-texte {
-    margin: 10px;
-    padding: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    border: 2px solid #000;
-    border-radius: 5px;
-    background-color: #fff;
-    text-align: center;
     grid-area: tour;
+    padding: 20px 20px;
+    margin: 10px;
+    border-radius: 5px;
 }
 
 #finish-button {
@@ -86,6 +83,22 @@ body {
 }
 
 #finish-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+}
+
+#pousser-button {
+    grid-area: pousser;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #fff;
+    border: 2px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+#pousser-button:hover {
     background-color: #f0f0f0;
     transform: scale(1.1);
 }
