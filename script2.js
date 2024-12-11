@@ -186,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
                 pionSelectionne.style.backgroundImage = null;
                 pionSelectionne.style.backgroundColor = 'transparent';
-                pion.style.backgroundColor = 'transparent';
                 pion.setAttribute('case_vide', 'false');
                 pionSelectionne.setAttribute('case_vide', 'true');
                 pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
@@ -198,6 +197,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 vientDeBouger = true;
             } else {
                 console.log("ce n'est pas votre tour !");
+                pionSelectionne = null;
+                click1Done = false;
             }
         } else {
             console.log("fail");
@@ -280,12 +281,21 @@ document.addEventListener('DOMContentLoaded', function() {
     pousserButton.id = 'pousser-button';
     pousserButton.classList.add('rotation-button');
     pousserButton.addEventListener('click', () => {
-        //A FAIRE
+        if (obtenirOrientation(pionSelectionne) == 'devant') {
+            let puissannce = 0;
+            let pCase = True;
+            while (pCase) {
+
+            }
+        } else if (obtenirOrientation(pionSelectionne) == 'droite') {
+            //A FAIRE
+        } else if (obtenirOrientation(pionSelectionne) == 'arriere') {
+            //A FAIRE
+        } else if (obtenirOrientation(pionSelectionne) == 'gauche') {
+            //A FAIRE
+        }
     });
     rotationContainer.appendChild(pousserButton);
-
-    console.log(position_mise_en_jeu);
-    console.log(appartientALaListe([4, 0], position_mise_en_jeu));
 });
                 
 function aleatoire (a, b) {
@@ -307,6 +317,19 @@ function obtenirCoordonnees(id) {
     return [x, y];
 }
 
+function obtenirOrientation(pion) {
+    const rotation = pion.style.transform;
+    if (rotation === 'rotate(0deg)') {
+        return 'devant';
+    } else if (rotation === 'rotate(90deg)') {
+        return 'droite';
+    } else if (rotation === 'rotate(180deg)') {
+        return 'arriere';
+    } else if (rotation === 'rotate(270deg)') {
+        return 'gauche';
+    }
+}
+
 function comparerTableaux(arr1, arr2) {
     if (arr1.length !== arr2.length) return false;
     for (let i = 0; i < arr1.length; i++) {
@@ -322,4 +345,11 @@ function appartientALaListe(coordonnees, liste) {
         }
     }
     return false;
+}
+
+function obtenirPionDevant(pion) {
+    const coord = obtenirCoordonnees(pion.id);
+    const x = coord[0];
+    const y = coord[1] - 1; // Supposons que "devant" signifie une case au-dessus
+    return document.getElementById(`pion-${x}-${y}`);
 }
