@@ -290,6 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const pionDevant = obtenirPionDevant(regard);
             const pionDevantTrouve = aPionDevant(regard);
             console.log('Pion devant:', pionDevant);
+            console.log('Pion devant trouvé:', pionDevantTrouve);
         
             if (pionDevantTrouve) {
                 console.log('Pion devant trouvé:', pionDevant);
@@ -319,6 +320,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }    
     });
     rotationContainer.appendChild(pousserButton);
+
+    function obtenirPionDevant(pion) {
+        const coord = obtenirCoordonnees(pion.id);
+        console.log('Coordonnées du pion:', coord);
+        const x = coord[0] - 1;
+        const y = coord[1];
+        console.log('Coordonnées du pion devant:', obtenirCoordonnees(`pion-${x}-${y}`));
+        console.log('case pour le f :', document.getElementById(`pion-${x}-${y}`));
+        return document.getElementById(`pion-${x}-${y}`);
+    }
+    
+    function aPionDevant(pion) {
+        const pionDevant = obtenirPionDevant(pion);
+        if (!pionDevant) {
+            console.error('Aucun pion devant trouvé.');
+            return false;
+        }
+        return pionDevant.getAttribute('couleur') !== null;
+    }
+    
+    function obtenirPionDerriere(pion) {
+        const coord = obtenirCoordonnees(pion.id);
+        const x = coord[0] + 1;
+        const y = coord[1];
+        return document.getElementById(`pion-${x}-${y}`);
+    }
+    
+    
+    function obtenirPionGauche(pion) {
+        const coord = obtenirCoordonnees(pion.id);
+        const x = coord[0];
+        const y = coord[1] - 1;
+        return document.getElementById(`pion-${x}-${y}`);
+    }
+    
+    function obtenirPionDroite(pion) {
+        const coord = obtenirCoordonnees(pion.id);
+        const x = coord[0];
+        const y = coord[1] + 1;
+        return document.getElementById(`pion-${x}-${y}`);
+    }
+    
 });
                 
 function aleatoire (a, b) {
@@ -358,45 +401,6 @@ function appartientALaListe(coordonnees, liste) {
 }
 
 
-function obtenirPionDevant(pion) {
-    const coord = obtenirCoordonnees(pion.id);
-    console.log('Coordonnées du pion:', coord);
-    const x = coord[0] - 1;
-    const y = coord[1];
-    console.log('Coordonnées du pion devant:', obtenirCoordonnees(`pion-${x}-${y}`));
-    return document.getElementById(`pion-${x}-${y}`);
-}
-
-function aPionDevant(pion) {
-    const pionDevant = obtenirPionDevant(pion);
-    if (!pionDevant) {
-        console.error('Aucun pion devant trouvé.');
-        return false;
-    }
-    return pionDevant.getAttribute('couleur') !== null;
-}
-
-function obtenirPionDerriere(pion) {
-    const coord = obtenirCoordonnees(pion.id);
-    const x = coord[0] + 1;
-    const y = coord[1];
-    return document.getElementById(`pion-${x}-${y}`);
-}
-
-
-function obtenirPionGauche(pion) {
-    const coord = obtenirCoordonnees(pion.id);
-    const x = coord[0];
-    const y = coord[1] - 1;
-    return document.getElementById(`pion-${x}-${y}`);
-}
-
-function obtenirPionDroite(pion) {
-    const coord = obtenirCoordonnees(pion.id);
-    const x = coord[0];
-    const y = coord[1] + 1;
-    return document.getElementById(`pion-${x}-${y}`);
-}
 
 function obtenorOrientation(pion) {
     return pion.style.transform;
