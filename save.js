@@ -287,36 +287,21 @@ document.addEventListener('DOMContentLoaded', function() {
             let puissanceContre = 0;
             let pionSelectionneCouleur = pionSelectionne.getAttribute('couleur');
             let regard = pionSelectionne;
-            const pionDevant = obtenirPionDevant(regard);
-            const pionDevantTrouve = aPionDevant(regard);
-            console.log('Pion devant:', pionDevant);
-        
-            if (pionDevantTrouve) {
-                console.log('Pion devant trouvé:', pionDevant);
-            } else {
-                console.error('Aucun pion devant trouvé.');
-            }
-        
             if (pionSelectionne.style.transform == 'rotate(0deg)') {
-                if (pionDevant && pionDevant.style.transform == 'rotate(180deg)' && pionDevant.getAttribute('couleur') != 'caillou') {
+                if (obtenirPionDevant(regard).style.transform == 'rotate(180deg)' && !(obtenirPionDevant(regard).getAttribute('couleur') == 'caillou')) {
                     puissanceContre += 2;
                 }
-                if (pionDevant && pionDevant.getAttribute('couleur') == 'caillou') {
+                if (obtenirPionDevant(regard).getAttribute('couleur') == 'caillou') {
                     puissanceContre += 1;
                 }
-                if (pionDevant && pionDevant.getAttribute('couleur') == pionSelectionneCouleur) {
+                if (obtenirPionDevant(regard).getAttribute('couleur') == pionSelectionneCouleur) {
                     puissancePerso += 2;
                 }
-            } else {
-                console.log('Le pion sélectionné n\'est pas dans la bonne orientation.');
             }
-        
-            console.log('Transformation du pion sélectionné:', pionSelectionne.style.transform);
-            console.log('Puissance personnelle:', puissancePerso);
-            console.log('Puissance contre:', puissanceContre);
-        } else {
-            console.error('Aucun pion sélectionné.');
-        }    
+            console.log(pionSelectionne.style.transform);
+            console.log(puissancePerso);
+            console.log(puissanceContre);
+        }
     });
     rotationContainer.appendChild(pousserButton);
 });
@@ -357,44 +342,31 @@ function appartientALaListe(coordonnees, liste) {
     return false;
 }
 
+function obtenirPionDerriere(pion) {
+    const coord = obtenirCoordonnees(pion.id);
+    const x = coord[0];
+    const y = coord[1] + 1; // Supposons que "derriere" signifie une case en-dessous
+    return document.getElementById(`pion-${x}-${y}`);
+}
 
 function obtenirPionDevant(pion) {
     const coord = obtenirCoordonnees(pion.id);
-    console.log('Coordonnées du pion:', coord);
-    const x = coord[0] - 1;
-    const y = coord[1];
-    console.log('Coordonnées du pion devant:', obtenirCoordonnees(`pion-${x}-${y}`));
+    const x = coord[0];
+    const y = coord[1] - 1; // Supposons que "devant" signifie une case au-dessus
     return document.getElementById(`pion-${x}-${y}`);
 }
-
-function aPionDevant(pion) {
-    const pionDevant = obtenirPionDevant(pion);
-    if (!pionDevant) {
-        console.error('Aucun pion devant trouvé.');
-        return false;
-    }
-    return pionDevant.getAttribute('couleur') !== null;
-}
-
-function obtenirPionDerriere(pion) {
-    const coord = obtenirCoordonnees(pion.id);
-    const x = coord[0] + 1;
-    const y = coord[1];
-    return document.getElementById(`pion-${x}-${y}`);
-}
-
 
 function obtenirPionGauche(pion) {
     const coord = obtenirCoordonnees(pion.id);
-    const x = coord[0];
-    const y = coord[1] - 1;
+    const x = coord[0] - 1; // Supposons que "gauche" signifie une case à gauche
+    const y = coord[1];
     return document.getElementById(`pion-${x}-${y}`);
 }
 
 function obtenirPionDroite(pion) {
     const coord = obtenirCoordonnees(pion.id);
-    const x = coord[0];
-    const y = coord[1] + 1;
+    const x = coord[0] + 1; // Supposons que "droite" signifie une case à droite
+    const y = coord[1];
     return document.getElementById(`pion-${x}-${y}`);
 }
 
