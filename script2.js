@@ -194,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 pionSelectionne.style.border = 'none';
                 pion.style.border = "2px solid red";
                 pion.style.transform = pionSelectionne.style.transform;
+                pionSelectionne.style.transform = '';
                 const x_y_pion_id = obtenirCoordonnees(pion.id);
                 vientDeBouger = true;
             } else {
@@ -285,122 +286,423 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Boutton cliqué');
         let puissancePerso = 2;
         let puissanceAdversaire = 0;
+        console.log('Puissance adversaire : ', puissanceAdversaire);
+        console.log('Puissance perso : ', puissancePerso);
         const couleur = pionSelectionne.getAttribute('couleur');
+        const couleurInverse = couleur === 'rouge' ? 'bleu' : 'rouge';
 
         if (obtenirOrientation(pionSelectionne) == 'rotate(0deg)') {
             console.log('Orientation : devant');
             let orientationInverse = 'rotate(180deg)';
-            let pionDevant1 = null, pionDevant2 = null, pionDevant3 = null, pionDevant4 = null;
-            if (aPionDevant(pionSelectionne)) pionDevant1 = obtenirPionDevant(pionSelectionne);
-            if (pionDevant1 && aPionDevant(pionDevant1)) pionDevant2 = obtenirPionDevant(pionDevant1);
-            if (pionDevant2 && aPionDevant(pionDevant2)) pionDevant3 = obtenirPionDevant(pionDevant2);
-            if (pionDevant3 && aPionDevant(pionDevant3)) pionDevant4 = obtenirPionDevant(pionDevant3);
-            console.log('PionSelectionne : ', pionSelectionne);
-            console.log('pionDevant1 : ', pionDevant1);
-            console.log('pionDevant2 : ', pionDevant2);
-            console.log('pionDevant3 : ', pionDevant3);
-            if (pionDevant1 && pionDevant1.getAttribute('couleur') == couleur && obtenirOrientation(pionDevant1) == 'rotate(0deg)') {
-                puissancePerso += 2;
-                console.log("puissancePerso : ", puissancePerso);
-                if (pionDevant2 && pionDevant2.getAttribute('couleur') == couleur && obtenirOrientation(pionDevant2) == 'rotate(0deg)') {
+
+            function compterPuissanceDevant(regard) {
+                if (regard == null) {
+                    return puissanceAdversaire;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                        puissanceAdversaire++;
+                        return compterPuissanceDevant(obtenirPionDevant(regard));
+                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
                     puissancePerso += 2;
-                    console.log("puissancePerso : ", puissancePerso);
-                    if (pionDevant3 && pionDevant3.getAttribute('couleur') == couleur && obtenirOrientation(pionDevant3) == 'rotate(0deg)') {
-                        puissancePerso += 2;
-                        console.log("puissancePerso : ", puissancePerso);
-                    }
-                }
-            }
-            if (pionDevant1 && pionDevant1.getAttribute('couleur') == 'rouge' && obtenirOrientation(pionDevant1) == orientationInverse) {
-                puissanceAdversaire += 2;
-                console.log("puissanceAdversaire : ", puissanceAdversaire);
-                if (pionDevant2 && pionDevant2.getAttribute('couleur') == 'rouge' && obtenirOrientation(pionDevant2) == orientationInverse) {
+                    return compterPuissanceDevant(obtenirPionDevant(regard));
+                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
                     puissanceAdversaire += 2;
-                    console.log("puissanceAdversaire : ", puissanceAdversaire);
-                    if (pionDevant3 && pionDevant3.getAttribute('couleur') == 'rouge' && obtenirOrientation(pionDevant3) == orientationInverse) {
-                        puissanceAdversaire += 2;
-                        console.log("puissanceAdversaire : ", puissanceAdversaire);
-                    }
-                }
-            } else if (pionDevant1 && pionDevant1.getAttribute('couleur') == 'caillou') {
-                puissanceAdversaire += 1;
-                console.log("puissanceAdversaire : ", puissanceAdversaire);
-                if (pionDevant2 && pionDevant2.getAttribute('couleur') == 'caillou') {
-                    puissanceAdversaire += 1;
-                    console.log("puissanceAdversaire : ", puissanceAdversaire);
-                    if (pionDevant3 && pionDevant3.getAttribute('couleur') == 'caillou') {
-                        puissanceAdversaire += 1;
-                        console.log("puissanceAdversaire : ", puissanceAdversaire);
-                    }
+                    return compterPuissanceDevant(obtenirPionDevant(regard));
                 }
             }
-        
+            compterPuissanceDevant(obtenirPionDevant(pionSelectionne));
+            console.log('Puissance adversaire : ', puissanceAdversaire);
+            console.log('Puissance perso : ', puissancePerso);
+
+            function nbPiecesDevant(regard, compteur = 0) {
+                if (regard == null) {
+                    return compteur;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                    compteur++;
+                    console.log('Caillou trouvé');
+                    return compteur + nbPiecesDevant(obtenirPionDevant(regard));
+                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                    compteur ++;
+                    console.log('Pion trouvé');
+                    return compteur + nbPiecesDevant(obtenirPionDevant(regard));
+                }
+                return compteur;
+            }
+            console.log('Nombre de pièces devant : ', nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
+
+            function pousserPionDevant(pionSelectionne) {
+                let pionDevant = obtenirPionDevant(pionSelectionne);
+                let pionDevantDevant = obtenirPionDevant(pionDevant);
+                if (pionDevant && pionDevantDevant) {
+                    console.log('Avant poussée:', {
+                        pionDevantDevantBackground: pionDevantDevant.style.backgroundImage,
+                        pionDevantDevantCouleur: pionDevantDevant.getAttribute('couleur'),
+                        pionDevantDevantTransform: pionDevantDevant.style.transform,
+                        pionDevantBackground: pionDevant.style.backgroundImage,
+                        pionDevantCouleur: pionDevant.getAttribute('couleur'),
+                        pionDevantTransform: pionDevant.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+                    
+                    pionDevantDevant.style.backgroundImage = pionDevant.style.backgroundImage;
+                    pionDevantDevant.setAttribute('couleur', pionDevant.getAttribute('couleur'));
+                    pionDevantDevant.style.transform = pionDevant.style.transform;
+                    pionDevantDevant.setAttribute('case_vide', 'false');
+                    pionDevant.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                    pionDevant.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                    pionDevant.style.transform = pionSelectionne.style.transform;
+                    pionDevant.setAttribute('case_vide', 'false');
+                    pionSelectionne.style.backgroundImage = null;
+                    pionSelectionne.setAttribute('couleur', null);
+                    pionSelectionne.style.transform = '';
+                    pionSelectionne.setAttribute('case_vide', 'true');
+            
+                    console.log('Après poussée:', {
+                        pionDevantDevantBackground: pionDevantDevant.style.backgroundImage,
+                        pionDevantDevantCouleur: pionDevantDevant.getAttribute('couleur'),
+                        pionDevantDevantTransform: pionDevantDevant.style.transform,
+                        pionDevantBackground: pionDevant.style.backgroundImage,
+                        pionDevantCouleur: pionDevant.getAttribute('couleur'),
+                        pionDevantTransform: pionDevant.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+                } else {
+                    retourPionBanc(pionDevantDevant);
+                }
+            }
+
+            if (puissancePerso > puissanceAdversaire) {
+                console.log('Poussée réussie');
+                if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) < 2) {
+                    pousserPionDevant(pionSelectionne);
+                } else if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) == 2) {
+                    pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                    pousserPionDevant(pionSelectionne);
+                } else if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) == 3) {
+                    pousserPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
+                    pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                    pousserPionDevant(pionSelectionne);
+                } else if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) == 4) {
+                    pousserPionDevant(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne))));
+                    pousserPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
+                    pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                    pousserPionDevant(pionSelectionne);
+                }
+            } else {
+                console.log('Poussée échouée');
+            }
+
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(180deg)') {
             console.log('Orientation : derriere');
-            let pionDerriere1 = null, pionDerriere2 = null, pionDerriere3 = null;
-            if (aPionDerriere(pionSelectionne)) pionDerriere1 = obtenirPionDerriere(pionSelectionne);
-            if (pionDerriere1 && aPionDerriere(pionDerriere1)) pionDerriere2 = obtenirPionDerriere(pionDerriere1);
-            if (pionDerriere2 && aPionDerriere(pionDerriere2)) pionDerriere3 = obtenirPionDerriere(pionDerriere2);
-            console.log('PionSelectionne : ', pionSelectionne);
-            console.log('pionDerriere1 : ', pionDerriere1);
-            console.log('pionDerriere2 : ', pionDerriere2);
-            console.log('pionDerriere3 : ', pionDerriere3);
-            if (pionDerriere1 && pionDerriere1.getAttribute('couleur') == couleur && obtenirOrientation(pionDerriere1) == 'rotate(180deg)') {
-                puissancePerso += 2;
-                console.log("puissancePerso : ", puissancePerso);
-                if (pionDerriere2 && pionDerriere2.getAttribute('couleur') == couleur && obtenirOrientation(pionDerriere2) == 'rotate(180deg)') {
+            let orientationInverse = 'rotate(0deg)';
+
+            function compterPuissanceDerriere(regard) {
+                if (regard == null) {
+                    return puissanceAdversaire;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                        puissanceAdversaire++;
+                        return compterPuissanceDerriere(obtenirPionDerriere(regard));
+                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
                     puissancePerso += 2;
-                    console.log("puissancePerso : ", puissancePerso);
-                    if (pionDerriere3 && pionDerriere3.getAttribute('couleur') == couleur && obtenirOrientation(pionDerriere3) == 'rotate(180deg)') {
-                        puissancePerso += 2;
-                        console.log("puissancePerso : ", puissancePerso);
-                    }
+                    return compterPuissanceDerriere(obtenirPionDerriere(regard));
+                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
+                    puissanceAdversaire += 2;
+                    return compterPuissanceDerriere(obtenirPionDerriere(regard));
                 }
             }
+            compterPuissanceDerriere(obtenirPionDerriere(pionSelectionne));
+            console.log('Puissance adversaire : ', puissanceAdversaire);
+            console.log('Puissance perso : ', puissancePerso);
+
+            function nbPiecesDerriere(regard, compteur = 0) {
+                if (regard == null) {
+                    return compteur;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                    compteur++;
+                    console.log('Caillou trouvé');
+                    return compteur + nbPiecesDerriere(obtenirPionDerriere(regard));
+                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                    compteur ++;
+                    console.log('Pion trouvé');
+                    return compteur + nbPiecesDerriere(obtenirPionDerriere(regard));
+                }
+                return compteur;
+            }
+            console.log('Nombre de pièces derrière : ', nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
+
+            function pousserPionDerriere(regard) {
+                let pionDerriere = obtenirPionDerriere(regard);
+                let pionDerriereDerriere = obtenirPionDerriere(pionDerriere);
+                if (pionDerriere && pionDerriereDerriere) {
+                    console.log('Avant poussée:', {
+                        pionDerriereDerriereBackground: pionDerriereDerriere.style.backgroundImage,
+                        pionDerriereDerriereCouleur: pionDerriereDerriere.getAttribute('couleur'),
+                        pionDerriereDerriereTransform: pionDerriereDerriere.style.transform,
+                        pionDerriereBackground: pionDerriere.style.backgroundImage,
+                        pionDerriereCouleur: pionDerriere.getAttribute('couleur'),
+                        pionDerriereTransform: pionDerriere.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+
+                    pionDerriereDerriere.style.backgroundImage = pionDerriere.style.backgroundImage;
+                    pionDerriereDerriere.setAttribute('couleur', pionDerriere.getAttribute('couleur'));
+                    pionDerriereDerriere.style.transform = pionDerriere.style.transform;
+                    pionDerriereDerriere.setAttribute('case_vide', 'false');
+                    pionDerriere.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                    pionDerriere.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                    pionDerriere.style.transform = pionSelectionne.style.transform;
+                    pionDerriere.setAttribute('case_vide', 'false');
+                    pionSelectionne.style.backgroundImage = null;
+                    pionSelectionne.setAttribute('couleur', null);
+                    pionSelectionne.style.transform = '';
+                    pionSelectionne.setAttribute('case_vide', 'true');
+
+                    console.log('Après poussée:', {
+                        pionDerriereDerriereBackground: pionDerriereDerriere.style.backgroundImage,
+                        pionDerriereDerriereCouleur: pionDerriereDerriere.getAttribute('couleur'),
+                        pionDerriereDerriereTransform: pionDerriereDerriere.style.transform,
+                        pionDerriereBackground: pionDerriere.style.backgroundImage,
+                        pionDerriereCouleur: pionDerriere.getAttribute('couleur'),
+                        pionDerriereTransform: pionDerriere.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+                }
+            }
+
+            if (puissancePerso > puissanceAdversaire) {
+                console.log('Poussée réussie');
+                if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) < 2) {
+                    pousserPionDerriere(pionSelectionne);
+                } else if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) == 2) {
+                    pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                    pousserPionDerriere(pionSelectionne);
+                } else if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) == 3) {
+                    pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
+                    pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                    pousserPionDerriere(pionSelectionne);
+                } else if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) == 4) {
+                    pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne))));
+                    pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
+                    pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                    pousserPionDerriere(pionSelectionne);
+                }
+            } else {
+                console.log('Poussée échouée');
+            }
+
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(270deg)') {
             console.log('Orientation : gauche');
-            let pionGauche1 = null, pionGauche2 = null, pionGauche3 = null;
-            if (aPionGauche(pionSelectionne)) pionGauche1 = obtenirPionGauche(pionSelectionne);
-            if (pionGauche1 && aPionGauche(pionGauche1)) pionGauche2 = obtenirPionGauche(pionGauche1);
-            if (pionGauche2 && aPionGauche(pionGauche2)) pionGauche3 = obtenirPionGauche(pionGauche2);
-            console.log('PionSelectionne : ', pionSelectionne);
-            console.log('pionGauche1 : ', pionGauche1);
-            console.log('pionGauche2 : ', pionGauche2);
-            console.log('pionGauche3 : ', pionGauche3);
-            if (pionGauche1 && pionGauche1.getAttribute('couleur') == couleur && obtenirOrientation(pionGauche1) == 'rotate(270deg)') {
-                puissancePerso += 2;
-                console.log("puissancePerso : ", puissancePerso);
-                if (pionGauche2 && pionGauche2.getAttribute('couleur') == couleur && obtenirOrientation(pionGauche2) == 'rotate(270deg)') {
+            let orientationInverse = 'rotate(90deg)';
+
+            function compterPuissanceGauche(regard) {
+                if (regard == null) {
+                    return puissanceAdversaire;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                        puissanceAdversaire++;
+                        return compterPuissanceGauche(obtenirPionGauche(regard));
+                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
                     puissancePerso += 2;
-                    console.log("puissancePerso : ", puissancePerso);
-                    if (pionGauche3 && pionGauche3.getAttribute('couleur') == couleur && obtenirOrientation(pionGauche3) == 'rotate(270deg)') {
-                        puissancePerso += 2;
-                        console.log("puissancePerso : ", puissancePerso);
-                    }
+                    return compterPuissanceGauche(obtenirPionGauche(regard));
+                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
+                    puissanceAdversaire += 2;
+                    return compterPuissanceGauche(obtenirPionGauche(regard));
                 }
-            } 
+            }
+            compterPuissanceGauche(obtenirPionGauche(pionSelectionne));
+            console.log('Puissance adversaire : ', puissanceAdversaire);
+            console.log('Puissance perso : ', puissancePerso);
+
+            function nbPiecesGauche(regard, compteur = 0) {
+                if (regard == null) {
+                    return compteur;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                    compteur++;
+                    console.log('Caillou trouvé');
+                    return compteur + nbPiecesGauche(obtenirPionGauche(regard));
+                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                    compteur ++;
+                    console.log('Pion trouvé');
+                    return compteur + nbPiecesGauche(obtenirPionGauche(regard));
+                }
+                return compteur;
+            }
+            console.log('Nombre de pièces à gauche : ', nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
+
+            function pousserPionGauche(regard) {
+                let pionGauche = obtenirPionGauche(regard);
+                let pionGaucheGauche = obtenirPionGauche(pionGauche);
+                if (pionGauche && pionGaucheGauche) {
+                    console.log('Avant poussée:', {
+                        pionGaucheGaucheBackground: pionGaucheGauche.style.backgroundImage,
+                        pionGaucheGaucheCouleur: pionGaucheGauche.getAttribute('couleur'),
+                        pionGaucheGaucheTransform: pionGaucheGauche.style.transform,
+                        pionGaucheBackground: pionGauche.style.backgroundImage,
+                        pionGaucheCouleur: pionGauche.getAttribute('couleur'),
+                        pionGaucheTransform: pionGauche.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+
+                    pionGaucheGauche.style.backgroundImage = pionGauche.style.backgroundImage;
+                    pionGaucheGauche.setAttribute('couleur', pionGauche.getAttribute('couleur'));
+                    pionGaucheGauche.style.transform = pionGauche.style.transform;
+                    pionGaucheGauche.setAttribute('case_vide', 'false');
+                    pionGauche.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                    pionGauche.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                    pionGauche.style.transform = pionSelectionne.style.transform;
+                    pionGauche.setAttribute('case_vide', 'false');
+                    pionSelectionne.style.backgroundImage = null;
+                    pionSelectionne.setAttribute('couleur', null);
+                    pionSelectionne.style.transform = '';
+                    pionSelectionne.setAttribute('case_vide', 'true');
+
+                    console.log('Après poussée:', {
+                        pionGaucheGaucheBackground: pionGaucheGauche.style.backgroundImage,
+                        pionGaucheGaucheCouleur: pionGaucheGauche.getAttribute('couleur'),
+                        pionGaucheGaucheTransform: pionGaucheGauche.style.transform,
+                        pionGaucheBackground: pionGauche.style.backgroundImage,
+                        pionGaucheCouleur: pionGauche.getAttribute('couleur'),
+                        pionGaucheTransform: pionGauche.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+                } else {
+                    retourPionBanc(pionGaucheGauche);
+                }
+            }
+
+            if (puissancePerso > puissanceAdversaire) {
+                console.log('Poussée réussie');
+                if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) < 2) {
+                    pousserPionGauche(pionSelectionne);
+                } else if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) == 2) {
+                    pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                    pousserPionGauche(pionSelectionne);
+                } else if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) == 3) {
+                    pousserPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
+                    pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                    pousserPionGauche(pionSelectionne);
+                } else if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) == 4) {
+                    pousserPionGauche(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne))));
+                    pousserPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
+                    pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                    pousserPionGauche(pionSelectionne);
+                }
+            } else {
+                console.log('Poussée échouée');
+            }
+
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(90deg)') {
             console.log('Orientation : droite');
-            let pionDroite1 = null, pionDroite2 = null, pionDroite3 = null;
-            if (aPionDroite(pionSelectionne)) pionDroite1 = obtenirPionDroite(pionSelectionne);
-            if (pionDroite1 && aPionDroite(pionDroite1)) pionDroite2 = obtenirPionDroite(pionDroite1);
-            if (pionDroite2 && aPionDroite(pionDroite2)) pionDroite3 = obtenirPionDroite(pionDroite2);
-            console.log('PionSelectionne : ', pionSelectionne);
-            console.log('pionDroite1 : ', pionDroite1);
-            console.log('pionDroite2 : ', pionDroite2);
-            console.log('pionDroite3 : ', pionDroite3);
-            if (pionDroite1 && pionDroite1.getAttribute('couleur') == couleur && obtenirOrientation(pionDroite1) == 'rotate(90deg)') {
-                puissancePerso += 2;
-                console.log("puissancePerso : ", puissancePerso);
-                if (pionDroite2 && pionDroite2.getAttribute('couleur') == couleur && obtenirOrientation(pionDroite2) == 'rotate(90deg)') {
+            let orientationInverse = 'rotate(270deg)';
+
+            function compterPuissanceDroite(regard) {
+                if (regard == null) {
+                    return puissanceAdversaire;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                        puissanceAdversaire++;
+                        return compterPuissanceDroite(obtenirPionDroite(regard));
+                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
                     puissancePerso += 2;
-                    console.log("puissancePerso : ", puissancePerso);
-                    if (pionDroite3 && pionDroite3.getAttribute('couleur') == couleur && obtenirOrientation(pionDroite3) == 'rotate(90deg)') {
-                        puissancePerso += 2;
-                        console.log("puissancePerso : ", puissancePerso);
-                    }
+                    return compterPuissanceDroite(obtenirPionDroite(regard));
+                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
+                    puissanceAdversaire += 2;
+                    return compterPuissanceDroite(obtenirPionDroite(regard));
                 }
-            }  
+            }
+            compterPuissanceDroite(obtenirPionDroite(pionSelectionne));
+            console.log('Puissance adversaire : ', puissanceAdversaire);
+            console.log('Puissance perso : ', puissancePerso);
+
+            function nbPiecesDroite(regard, compteur = 0) {
+                if (regard == null) {
+                    return compteur;
+                } else if (regard.getAttribute('couleur') == 'caillou') {
+                    compteur++;
+                    console.log('Caillou trouvé');
+                    return compteur + nbPiecesDroite(obtenirPionDroite(regard));
+                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                    compteur ++;
+                    console.log('Pion trouvé');
+                    return compteur + nbPiecesDroite(obtenirPionDroite(regard));
+                }
+                return compteur;
+            }
+            console.log('Nombre de pièces à droite : ', nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
+
+            function pousserPionDroite(regard) {
+                let pionDroite = obtenirPionDroite(regard);
+                let pionDroiteDroite = obtenirPionDroite(pionDroite);
+                if (pionDroite && pionDroiteDroite) {
+                    console.log('Avant poussée:', {
+                        pionDroiteDroiteBackground: pionDroiteDroite.style.backgroundImage,
+                        pionDroiteDroiteCouleur: pionDroiteDroite.getAttribute('couleur'),
+                        pionDroiteDroiteTransform: pionDroiteDroite.style.transform,
+                        pionDroiteBackground: pionDroite.style.backgroundImage,
+                        pionDroiteCouleur: pionDroite.getAttribute('couleur'),
+                        pionDroiteTransform: pionDroite.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+
+                    pionDroiteDroite.style.backgroundImage = pionDroite.style.backgroundImage;
+                    pionDroiteDroite.setAttribute('couleur', pionDroite.getAttribute('couleur'));
+                    pionDroiteDroite.style.transform = pionDroite.style.transform;
+                    pionDroiteDroite.setAttribute('case_vide', 'false');
+                    pionDroite.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                    pionDroite.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                    pionDroite.style.transform = pionSelectionne.style.transform;
+                    pionDroite.setAttribute('case_vide', 'false');
+                    pionSelectionne.style.backgroundImage = null;
+                    pionSelectionne.setAttribute('couleur', null);
+                    pionSelectionne.style.transform = '';
+                    pionSelectionne.setAttribute('case_vide', 'true');
+
+                    console.log('Après poussée:', {
+                        pionDroiteDroiteBackground: pionDroiteDroite.style.backgroundImage,
+                        pionDroiteDroiteCouleur: pionDroiteDroite.getAttribute('couleur'),
+                        pionDroiteDroiteTransform: pionDroiteDroite.style.transform,
+                        pionDroiteBackground: pionDroite.style.backgroundImage,
+                        pionDroiteCouleur: pionDroite.getAttribute('couleur'),
+                        pionDroiteTransform: pionDroite.style.transform,
+                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
+                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
+                        pionSelectionneTransform: pionSelectionne.style.transform
+                    });
+                } else {
+                    retourPionBanc(pionDroiteDroite);
+                }
+            }
+
+            if (puissancePerso > puissanceAdversaire) {
+                console.log('Poussée réussie');
+                if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) < 2) {
+                    pousserPionDroite(pionSelectionne);
+                } else if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) == 2) {
+                    pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                    pousserPionDroite(pionSelectionne);
+                } else if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) == 3) {
+                    pousserPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
+                    pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                    pousserPionDroite(pionSelectionne);
+                } else if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) == 4) {
+                    pousserPionDroite(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne))));
+                    pousserPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
+                    pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                    pousserPionDroite(pionSelectionne);
+                }
+            }
+
         } else {
             console.log('Orientation non reconnue');
         }
