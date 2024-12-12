@@ -195,7 +195,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 pion.style.border = "2px solid red";
                 pion.style.transform = pionSelectionne.style.transform;
                 pionSelectionne.style.transform = '';
-                const x_y_pion_id = obtenirCoordonnees(pion.id);
                 vientDeBouger = true;
             } else {
                 console.log("ce n'est pas votre tour !");
@@ -296,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let orientationInverse = 'rotate(180deg)';
 
             function compterPuissanceDevant(regard) {
-                if (regard == null) {
+                if (obtenirCoordonnees(regard.id)[0] == 0) {
                     return puissanceAdversaire;
                 } else if (regard.getAttribute('couleur') == 'caillou') {
                         puissanceAdversaire++;
@@ -329,70 +328,114 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             console.log('Nombre de pièces devant : ', nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
 
-            function pousserPionDevant(pionSelectionne) {
-                let pionDevant = obtenirPionDevant(pionSelectionne);
+            function estSurLeBordDevantPion(regard) {
+                if (obtenirCoordonnees(regard.id)[0] == 1 && (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse)) {
+                    console.log('un pion est sur le bord');
+                    return true;
+                }
+                return false;
+            }
+
+            function estSurLeBordDevantCaillou(regard) {
+                if (obtenirCoordonnees(regard.id)[0] == 0 && regard.getAttribute('couleur') == 'caillou') {
+                    console.log('un caillou est sur le bord');
+                    return true;
+                }
+                return false;
+            }
+
+            let nombreDePassages = 0;
+            function pousserPionDevant(regard) {
+                let pionDevant = obtenirPionDevant(regard);
                 let pionDevantDevant = obtenirPionDevant(pionDevant);
-                if (pionDevant && pionDevantDevant) {
-                    console.log('Avant poussée:', {
-                        pionDevantDevantBackground: pionDevantDevant.style.backgroundImage,
-                        pionDevantDevantCouleur: pionDevantDevant.getAttribute('couleur'),
-                        pionDevantDevantTransform: pionDevantDevant.style.transform,
-                        pionDevantBackground: pionDevant.style.backgroundImage,
-                        pionDevantCouleur: pionDevant.getAttribute('couleur'),
-                        pionDevantTransform: pionDevant.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
-                    
-                    pionDevantDevant.style.backgroundImage = pionDevant.style.backgroundImage;
-                    pionDevantDevant.setAttribute('couleur', pionDevant.getAttribute('couleur'));
-                    pionDevantDevant.style.transform = pionDevant.style.transform;
-                    pionDevantDevant.setAttribute('case_vide', 'false');
-                    pionDevant.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                    pionDevant.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                    pionDevant.style.transform = pionSelectionne.style.transform;
-                    pionDevant.setAttribute('case_vide', 'false');
-                    pionSelectionne.style.backgroundImage = null;
-                    pionSelectionne.setAttribute('couleur', null);
-                    pionSelectionne.style.transform = '';
-                    pionSelectionne.setAttribute('case_vide', 'true');
-            
-                    console.log('Après poussée:', {
-                        pionDevantDevantBackground: pionDevantDevant.style.backgroundImage,
-                        pionDevantDevantCouleur: pionDevantDevant.getAttribute('couleur'),
-                        pionDevantDevantTransform: pionDevantDevant.style.transform,
-                        pionDevantBackground: pionDevant.style.backgroundImage,
-                        pionDevantCouleur: pionDevant.getAttribute('couleur'),
-                        pionDevantTransform: pionDevant.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
+                if (obtenirCoordonnees(pionDevantDevant.id)[0] == 0 && (pionDevant.getAttribute('couleur') == couleur || pionDevant.getAttribute('couleur') == couleurInverse)) {
+                    console.log('un pion est sur le bord');
+                    return;
+                }
+                if (nombreDePassages == 0) {
+                    if (pionDevant && pionDevantDevant) {                        
+                        pionDevantDevant.style.backgroundImage = pionDevant.style.backgroundImage;
+                        pionDevantDevant.setAttribute('couleur', pionDevant.getAttribute('couleur'));
+                        pionDevantDevant.style.transform = pionDevant.style.transform;
+                        pionDevantDevant.setAttribute('case_vide', 'false');
+                        pionDevant.style.backgroundImage = regard.style.backgroundImage;
+                        pionDevant.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionDevant.style.transform = regard.style.transform;
+                        pionDevant.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                        nombreDePassages++;
+                    } else {
+                        retourPionBanc(pionDevantDevant);
+                        nombreDePassages++;
+                    }
                 } else {
-                    retourPionBanc(pionDevantDevant);
+                    if (pionDevant) {
+                        pionDevant.style.backgroundImage = regard.style.backgroundImage;
+                        pionDevant.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionDevant.style.transform = regard.style.transform;
+                        pionDevant.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                    }
                 }
             }
 
             if (puissancePerso > puissanceAdversaire) {
                 console.log('Poussée réussie');
-                if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) < 2) {
-                    pousserPionDevant(pionSelectionne);
+                if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) == 1) {  
+                    if (estSurLeBordDevantPion(obtenirPionDevant(pionSelectionne))) {
+                        retourPionBanc(obtenirPionDevant(pionSelectionne));
+                    } else if (estSurLeBordDevantCaillou(obtenirPionDevant(pionSelectionne))) {
+                        partieFinie();
+                    } else { 
+                        pousserPionDevant(pionSelectionne);
+                    }
                 } else if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) == 2) {
-                    pousserPionDevant(obtenirPionDevant(pionSelectionne));
-                    pousserPionDevant(pionSelectionne);
+                    if (estSurLeBordDevantPion(obtenirPionDevant(obtenirPionDevant(pionSelectionne)))) {
+                        retourPionBanc(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
+                        pousserPionDevant(pionSelectionne);
+                    } else if (estSurLeBordDevantCaillou(obtenirPionDevant(obtenirPionDevant(pionSelectionne)))) {
+                        partieFinie();
+                    } else {
+                        pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                        pousserPionDevant(pionSelectionne);
+                    }
                 } else if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) == 3) {
-                    pousserPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
-                    pousserPionDevant(obtenirPionDevant(pionSelectionne));
-                    pousserPionDevant(pionSelectionne);
+                    if (estSurLeBordDevantPion(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne))))) {
+                        retourPionBanc(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne))));
+                        pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                        pousserPionDevant(pionSelectionne); 
+                    } else if (estSurLeBordDevantCaillou(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne))))){
+                        partieFinie();
+                    } else {
+                        pousserPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
+                        pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                        pousserPionDevant(pionSelectionne);
+                    }
                 } else if (nbPiecesDevant(obtenirPionDevant(pionSelectionne)) == 4) {
-                    pousserPionDevant(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne))));
-                    pousserPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
-                    pousserPionDevant(obtenirPionDevant(pionSelectionne));
-                    pousserPionDevant(pionSelectionne);
+                    if (estSurLeBordDevantPion(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)))))) {
+                        retourPionBanc(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)))));
+                        pousserPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
+                        pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                        pousserPionDevant(pionSelectionne);
+                    } else if (estSurLeBordDevantCaillou(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)))))) {
+                        partieFinie();
+                    } else {
+                        pousserPionDevant(obtenirPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne))));
+                        pousserPionDevant(obtenirPionDevant(obtenirPionDevant(pionSelectionne)));
+                        pousserPionDevant(obtenirPionDevant(pionSelectionne));
+                        pousserPionDevant(pionSelectionne);
+                    }
+                } else {
+                    console.log('jsp frère c\'est sencé marcher');
                 }
             } else {
-                console.log('Poussée échouée');
+                console.log('Poussée échouée, pas assez de puissance');
             }
 
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(180deg)') {
@@ -400,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let orientationInverse = 'rotate(0deg)';
 
             function compterPuissanceDerriere(regard) {
-                if (regard == null) {
+                if (obtenirCoordonnees(regard.id)[0] == 6) {
                     return puissanceAdversaire;
                 } else if (regard.getAttribute('couleur') == 'caillou') {
                         puissanceAdversaire++;
@@ -433,68 +476,110 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             console.log('Nombre de pièces derrière : ', nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
 
+            function estSurLeBordDerrierePion(regard) {
+                if (obtenirCoordonnees(regard.id)[0] == 5 && (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse)) {
+                    console.log('un pion est sur le bord');
+                    return true;
+                }
+                return false;
+            }
+
+            function estSurLeBordDerriereCaillou(regard) {
+                if (obtenirCoordonnees(regard.id)[0] == 6 && regard.getAttribute('couleur') == 'caillou') {
+                    console.log('un caillou est sur le bord');
+                    return true;
+                }
+                return false;
+            }
+
+            let nombreDePassages = 0;
             function pousserPionDerriere(regard) {
                 let pionDerriere = obtenirPionDerriere(regard);
                 let pionDerriereDerriere = obtenirPionDerriere(pionDerriere);
-                if (pionDerriere && pionDerriereDerriere) {
-                    console.log('Avant poussée:', {
-                        pionDerriereDerriereBackground: pionDerriereDerriere.style.backgroundImage,
-                        pionDerriereDerriereCouleur: pionDerriereDerriere.getAttribute('couleur'),
-                        pionDerriereDerriereTransform: pionDerriereDerriere.style.transform,
-                        pionDerriereBackground: pionDerriere.style.backgroundImage,
-                        pionDerriereCouleur: pionDerriere.getAttribute('couleur'),
-                        pionDerriereTransform: pionDerriere.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
-
-                    pionDerriereDerriere.style.backgroundImage = pionDerriere.style.backgroundImage;
-                    pionDerriereDerriere.setAttribute('couleur', pionDerriere.getAttribute('couleur'));
-                    pionDerriereDerriere.style.transform = pionDerriere.style.transform;
-                    pionDerriereDerriere.setAttribute('case_vide', 'false');
-                    pionDerriere.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                    pionDerriere.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                    pionDerriere.style.transform = pionSelectionne.style.transform;
-                    pionDerriere.setAttribute('case_vide', 'false');
-                    pionSelectionne.style.backgroundImage = null;
-                    pionSelectionne.setAttribute('couleur', null);
-                    pionSelectionne.style.transform = '';
-                    pionSelectionne.setAttribute('case_vide', 'true');
-
-                    console.log('Après poussée:', {
-                        pionDerriereDerriereBackground: pionDerriereDerriere.style.backgroundImage,
-                        pionDerriereDerriereCouleur: pionDerriereDerriere.getAttribute('couleur'),
-                        pionDerriereDerriereTransform: pionDerriereDerriere.style.transform,
-                        pionDerriereBackground: pionDerriere.style.backgroundImage,
-                        pionDerriereCouleur: pionDerriere.getAttribute('couleur'),
-                        pionDerriereTransform: pionDerriere.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
+                if (nombreDePassages == 0) {
+                    if (pionDerriere && pionDerriereDerriere) {
+                        pionDerriereDerriere.style.backgroundImage = pionDerriere.style.backgroundImage;
+                        pionDerriereDerriere.setAttribute('couleur', pionDerriere.getAttribute('couleur'));
+                        pionDerriereDerriere.style.transform = pionDerriere.style.transform;
+                        pionDerriereDerriere.setAttribute('case_vide', 'false');
+                        pionDerriere.style.backgroundImage = regard.style.backgroundImage;
+                        pionDerriere.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionDerriere.style.transform = regard.style.transform;
+                        pionDerriere.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                        nombreDePassages++;
+                    } else {
+                        retourPionBanc(pionDerriereDerriere);
+                        nombreDePassages++;
+                    }
+                } else {
+                    if (pionDerriere) {
+                        pionDerriere.style.backgroundImage = regard.style.backgroundImage;
+                        pionDerriere.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionDerriere.style.transform = regard.style.transform;
+                        pionDerriere.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                    }
                 }
             }
 
             if (puissancePerso > puissanceAdversaire) {
                 console.log('Poussée réussie');
-                if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) < 2) {
-                    pousserPionDerriere(pionSelectionne);
+                if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) == 1) {  
+                    if (estSurLeBordDerrierePion(obtenirPionDerriere(pionSelectionne))) {
+                        retourPionBanc(obtenirPionDerriere(pionSelectionne));
+                    } else if (estSurLeBordDerriereCaillou(obtenirPionDerriere(pionSelectionne))) {
+                        partieFinie();
+                    } else { 
+                        pousserPionDerriere(pionSelectionne);
+                    }
                 } else if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) == 2) {
-                    pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
-                    pousserPionDerriere(pionSelectionne);
+                    if (estSurLeBordDerrierePion(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)))) {
+                        retourPionBanc(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
+                        pousserPionDerriere(pionSelectionne);
+                    } else if (estSurLeBordDerriereCaillou(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)))) {
+                        partieFinie();
+                    } else {
+                        pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                        pousserPionDerriere(pionSelectionne);
+                    }
                 } else if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) == 3) {
-                    pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
-                    pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
-                    pousserPionDerriere(pionSelectionne);
+                    if (estSurLeBordDerrierePion(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne))))){
+                        retourPionBanc(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne))));
+                        pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                        pousserPionDerriere(pionSelectionne);
+                    } else if (estSurLeBordDerriereCaillou(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne))))){
+                        partieFinie();
+                    } else {
+                        pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
+                        pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                        pousserPionDerriere(pionSelectionne);
+                    }
                 } else if (nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)) == 4) {
-                    pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne))));
-                    pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
-                    pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
-                    pousserPionDerriere(pionSelectionne);
+                    if (estSurLeBordDerrierePion(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)))))) {
+                        retourPionBanc(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)))));
+                        pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
+                        pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                        pousserPionDerriere(pionSelectionne);
+                    } else if (estSurLeBordDerriereCaillou(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)))))) {
+                        partieFinie();
+                    } else {
+                        pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne))));
+                        pousserPionDerriere(obtenirPionDerriere(obtenirPionDerriere(pionSelectionne)));
+                        pousserPionDerriere(obtenirPionDerriere(pionSelectionne));
+                        pousserPionDerriere(pionSelectionne);
+                    }
+                } else {
+                    console.log('jsp frère c\'est sencé marcher');
                 }
             } else {
-                console.log('Poussée échouée');
+                console.log('Poussée échouée, pas assez de puissance');
             }
 
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(270deg)') {
@@ -535,70 +620,110 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             console.log('Nombre de pièces à gauche : ', nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
 
+            function estSurLeBordGauchePion(regard) {
+                if (obtenirCoordonnees(regard.id)[1] == 1 && (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse)) {
+                    console.log('un pion est sur le bord');
+                    return true;
+                }
+                return false;
+            }
+
+            function estSurLeBordGaucheCaillou(regard) {
+                if (obtenirCoordonnees(regard.id)[1] == 0 && regard.getAttribute('couleur') == 'caillou') {
+                    console.log('un caillou est sur le bord');
+                    return true;
+                }
+                return false;
+            }
+
+            let nombreDePassages = 0;
             function pousserPionGauche(regard) {
                 let pionGauche = obtenirPionGauche(regard);
                 let pionGaucheGauche = obtenirPionGauche(pionGauche);
-                if (pionGauche && pionGaucheGauche) {
-                    console.log('Avant poussée:', {
-                        pionGaucheGaucheBackground: pionGaucheGauche.style.backgroundImage,
-                        pionGaucheGaucheCouleur: pionGaucheGauche.getAttribute('couleur'),
-                        pionGaucheGaucheTransform: pionGaucheGauche.style.transform,
-                        pionGaucheBackground: pionGauche.style.backgroundImage,
-                        pionGaucheCouleur: pionGauche.getAttribute('couleur'),
-                        pionGaucheTransform: pionGauche.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
-
-                    pionGaucheGauche.style.backgroundImage = pionGauche.style.backgroundImage;
-                    pionGaucheGauche.setAttribute('couleur', pionGauche.getAttribute('couleur'));
-                    pionGaucheGauche.style.transform = pionGauche.style.transform;
-                    pionGaucheGauche.setAttribute('case_vide', 'false');
-                    pionGauche.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                    pionGauche.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                    pionGauche.style.transform = pionSelectionne.style.transform;
-                    pionGauche.setAttribute('case_vide', 'false');
-                    pionSelectionne.style.backgroundImage = null;
-                    pionSelectionne.setAttribute('couleur', null);
-                    pionSelectionne.style.transform = '';
-                    pionSelectionne.setAttribute('case_vide', 'true');
-
-                    console.log('Après poussée:', {
-                        pionGaucheGaucheBackground: pionGaucheGauche.style.backgroundImage,
-                        pionGaucheGaucheCouleur: pionGaucheGauche.getAttribute('couleur'),
-                        pionGaucheGaucheTransform: pionGaucheGauche.style.transform,
-                        pionGaucheBackground: pionGauche.style.backgroundImage,
-                        pionGaucheCouleur: pionGauche.getAttribute('couleur'),
-                        pionGaucheTransform: pionGauche.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
+                if (nombreDePassages == 0) {
+                    if (pionGauche && pionGaucheGauche) {
+                        pionGaucheGauche.style.backgroundImage = pionGauche.style.backgroundImage;
+                        pionGaucheGauche.setAttribute('couleur', pionGauche.getAttribute('couleur'));
+                        pionGaucheGauche.style.transform = pionGauche.style.transform;
+                        pionGaucheGauche.setAttribute('case_vide', 'false');
+                        pionGauche.style.backgroundImage = regard.style.backgroundImage;
+                        pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionGauche.style.transform = regard.style.transform;
+                        pionGauche.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                        nombreDePassages++;
+                    } else {
+                        retourPionBanc(pionGaucheGauche);
+                        nombreDePassages++;
+                    }
                 } else {
-                    retourPionBanc(pionGaucheGauche);
+                    if (pionGauche) {
+                        pionGauche.style.backgroundImage = regard.style.backgroundImage;
+                        pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionGauche.style.transform = regard.style.transform;
+                        pionGauche.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                    }
                 }
             }
 
             if (puissancePerso > puissanceAdversaire) {
                 console.log('Poussée réussie');
-                if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) < 2) {
-                    pousserPionGauche(pionSelectionne);
+                if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) == 1) {
+                    if (estSurLeBordGauchePion(obtenirPionGauche(pionSelectionne))) {
+                        retourPionBanc(obtenirPionGauche(pionSelectionne));
+                    } else if (estSurLeBordGaucheCaillou(obtenirPionGauche(pionSelectionne))) {
+                        partieFinie();
+                    } else {
+                        pousserPionGauche(pionSelectionne);
+                    }
                 } else if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) == 2) {
-                    pousserPionGauche(obtenirPionGauche(pionSelectionne));
-                    pousserPionGauche(pionSelectionne);
+                    if (estSurLeBordGauchePion(obtenirPionGauche(obtenirPionGauche(pionSelectionne)))) {
+                        retourPionBanc(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
+                        pousserPionGauche(pionSelectionne);
+                    } else if (estSurLeBordGaucheCaillou(obtenirPionGauche(obtenirPionGauche(pionSelectionne)))) {
+                        partieFinie();
+                    } else {
+                        pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                        pousserPionGauche(pionSelectionne);
+                    }
                 } else if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) == 3) {
-                    pousserPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
-                    pousserPionGauche(obtenirPionGauche(pionSelectionne));
-                    pousserPionGauche(pionSelectionne);
+                    if (estSurLeBordGauchePion(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne))))){
+                        retourPionBanc(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne))));
+                        pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                        pousserPionGauche(pionSelectionne);
+                    } else if (estSurLeBordGaucheCaillou(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne))))){
+                        partieFinie();
+                    } else {
+                        pousserPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
+                        pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                        pousserPionGauche(pionSelectionne);
+                    }
                 } else if (nbPiecesGauche(obtenirPionGauche(pionSelectionne)) == 4) {
-                    pousserPionGauche(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne))));
-                    pousserPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
-                    pousserPionGauche(obtenirPionGauche(pionSelectionne));
-                    pousserPionGauche(pionSelectionne);
+                    if (estSurLeBordGauchePion(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)))))) {
+                        retourPionBanc(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)))));
+                        pousserPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
+                        pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                        pousserPionGauche(pionSelectionne);
+                    } else if (estSurLeBordGaucheCaillou(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)))))) {
+                        partieFinie();
+                    } else {
+                        pousserPionGauche(obtenirPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne))));
+                        pousserPionGauche(obtenirPionGauche(obtenirPionGauche(pionSelectionne)));
+                        pousserPionGauche(obtenirPionGauche(pionSelectionne));
+                        pousserPionGauche(pionSelectionne);
+                    }
+                } else {
+                    console.log('jsp frère c\'est sencé marcher');
                 }
             } else {
-                console.log('Poussée échouée');
+                console.log('Poussée échouée, pas assez de puissance');
             }
 
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(90deg)') {
@@ -638,69 +763,111 @@ document.addEventListener('DOMContentLoaded', function() {
                 return compteur;
             }
             console.log('Nombre de pièces à droite : ', nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
+            
+            function estSurLeBordDroitePion(regard) {
+                if (obtenirCoordonnees(regard.id)[1] == 5 && (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse)) {
+                    console.log('un pion est sur le bord');
+                    return true;
+                }
+                return false;
+            }
 
+            function estSurLeBordDroiteCaillou(regard) {
+                if (obtenirCoordonnees(regard.id)[1] == 6 && regard.getAttribute('couleur') == 'caillou') {
+                    console.log('un caillou est sur le bord');
+                    return true;
+                }
+                return false;
+            }
+
+            let nombreDePassages = 0;
             function pousserPionDroite(regard) {
                 let pionDroite = obtenirPionDroite(regard);
                 let pionDroiteDroite = obtenirPionDroite(pionDroite);
-                if (pionDroite && pionDroiteDroite) {
-                    console.log('Avant poussée:', {
-                        pionDroiteDroiteBackground: pionDroiteDroite.style.backgroundImage,
-                        pionDroiteDroiteCouleur: pionDroiteDroite.getAttribute('couleur'),
-                        pionDroiteDroiteTransform: pionDroiteDroite.style.transform,
-                        pionDroiteBackground: pionDroite.style.backgroundImage,
-                        pionDroiteCouleur: pionDroite.getAttribute('couleur'),
-                        pionDroiteTransform: pionDroite.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
-
-                    pionDroiteDroite.style.backgroundImage = pionDroite.style.backgroundImage;
-                    pionDroiteDroite.setAttribute('couleur', pionDroite.getAttribute('couleur'));
-                    pionDroiteDroite.style.transform = pionDroite.style.transform;
-                    pionDroiteDroite.setAttribute('case_vide', 'false');
-                    pionDroite.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                    pionDroite.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                    pionDroite.style.transform = pionSelectionne.style.transform;
-                    pionDroite.setAttribute('case_vide', 'false');
-                    pionSelectionne.style.backgroundImage = null;
-                    pionSelectionne.setAttribute('couleur', null);
-                    pionSelectionne.style.transform = '';
-                    pionSelectionne.setAttribute('case_vide', 'true');
-
-                    console.log('Après poussée:', {
-                        pionDroiteDroiteBackground: pionDroiteDroite.style.backgroundImage,
-                        pionDroiteDroiteCouleur: pionDroiteDroite.getAttribute('couleur'),
-                        pionDroiteDroiteTransform: pionDroiteDroite.style.transform,
-                        pionDroiteBackground: pionDroite.style.backgroundImage,
-                        pionDroiteCouleur: pionDroite.getAttribute('couleur'),
-                        pionDroiteTransform: pionDroite.style.transform,
-                        pionSelectionneBackground: pionSelectionne.style.backgroundImage,
-                        pionSelectionneCouleur: pionSelectionne.getAttribute('couleur'),
-                        pionSelectionneTransform: pionSelectionne.style.transform
-                    });
+                if (nombreDePassages == 0) {
+                    if (pionDroite && pionDroiteDroite) {
+                        pionDroiteDroite.style.backgroundImage = pionDroite.style.backgroundImage;
+                        pionDroiteDroite.setAttribute('couleur', pionDroite.getAttribute('couleur'));
+                        pionDroiteDroite.style.transform = pionDroite.style.transform;
+                        pionDroiteDroite.setAttribute('case_vide', 'false');
+                        pionDroite.style.backgroundImage = regard.style.backgroundImage;
+                        pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionDroite.style.transform = regard.style.transform;
+                        pionDroite.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                        nombreDePassages++;
+                    } else {
+                        retourPionBanc(pionDroiteDroite);
+                        nombreDePassages++;
+                    }
                 } else {
-                    retourPionBanc(pionDroiteDroite);
+                    if (pionDroite) {
+                        pionDroite.style.backgroundImage = regard.style.backgroundImage;
+                        pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionDroite.style.transform = regard.style.transform;
+                        pionDroite.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                    }
                 }
             }
 
             if (puissancePerso > puissanceAdversaire) {
                 console.log('Poussée réussie');
-                if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) < 2) {
-                    pousserPionDroite(pionSelectionne);
+                if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) == 1) {
+                    if (estSurLeBordDroitePion(obtenirPionDroite(pionSelectionne))) {
+                        retourPionBanc(obtenirPionDroite(pionSelectionne));
+                    } else if (estSurLeBordDroiteCaillou(obtenirPionDroite(pionSelectionne))) {
+                        partieFinie();
+                    } else {
+                        pousserPionDroite(pionSelectionne);
+                    }
                 } else if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) == 2) {
-                    pousserPionDroite(obtenirPionDroite(pionSelectionne));
-                    pousserPionDroite(pionSelectionne);
+                    if (estSurLeBordDroitePion(obtenirPionDroite(obtenirPionDroite(pionSelectionne)))) {
+                        retourPionBanc(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
+                        pousserPionDroite(pionSelectionne);
+                    } else if (estSurLeBordDroiteCaillou(obtenirPionDroite(obtenirPionDroite(pionSelectionne)))) {
+                        partieFinie();
+                    } else {
+                        pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                        pousserPionDroite(pionSelectionne);
+                    }
                 } else if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) == 3) {
-                    pousserPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
-                    pousserPionDroite(obtenirPionDroite(pionSelectionne));
-                    pousserPionDroite(pionSelectionne);
+                    if (estSurLeBordDroitePion(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne))))){
+                        retourPionBanc(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne))));
+                        pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                        pousserPionDroite(pionSelectionne);
+                    } else if (estSurLeBordDroiteCaillou(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne))))){
+                        partieFinie();
+                    } else {
+                        pousserPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
+                        pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                        pousserPionDroite(pionSelectionne);
+                    }
                 } else if (nbPiecesDroite(obtenirPionDroite(pionSelectionne)) == 4) {
-                    pousserPionDroite(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne))));
-                    pousserPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
-                    pousserPionDroite(obtenirPionDroite(pionSelectionne));
-                    pousserPionDroite(pionSelectionne);
+                    if (estSurLeBordDroitePion(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)))))) {
+                        retourPionBanc(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)))));
+                        pousserPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
+                        pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                        pousserPionDroite(pionSelectionne);
+                    } else if (estSurLeBordDroiteCaillou(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)))))) {
+                        partieFinie();
+                    } else {
+                        pousserPionDroite(obtenirPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne))));
+                        pousserPionDroite(obtenirPionDroite(obtenirPionDroite(pionSelectionne)));
+                        pousserPionDroite(obtenirPionDroite(pionSelectionne));
+                        pousserPionDroite(pionSelectionne);
+                    }
+                } else {
+                    console.log('jsp frère c\'est sencé marcher');
                 }
+            } else {
+                console.log('Poussée échouée, pas assez de puissance');
             }
 
         } else {
@@ -776,6 +943,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function aPionDroite(pion) {
         const pionDroite = obtenirPionDroite(pion);
         return pionDroite && pionDroite.getAttribute('couleur') !== null;
+    }
+
+    function partieFinie(gagnant) {
+        console.log('le couillou est dehors');
+        console.log('Le gagnant est : ', gagnant);
     }
     
 });
