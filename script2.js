@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 pion = null
             }
         } else {
-            console.log("fail");
+            console.log("Pousser en insertion en cours de dev");
         }
     }
 
