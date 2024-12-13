@@ -240,6 +240,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (pion.getAttribute('case_vide') == 'false') {
             console.log("La case est bien occupée par un pion");
             if (appartientALaListe(coordPion, bordDroit)) {
+                 //Orientation a gauche
+
                 console.log("Le bord est le bord droit");
                 let orientationInverse = 'rotate(90deg)';
 
@@ -269,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
             } else if (appartientALaListe(coordPion, bordGauche)) {
+                //Orientation a droite
                 console.log("Le bord est le bord gauche");
                 let orientationInverse = 'rotate(270deg)';
 
@@ -296,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
             } else if (appartientALaListe(coordPion, bordHaut)) {
+                //Orientation a bas
                 console.log("Le bord est le bord haut");
                 let orientationInverse = 'rotate(180deg)';
 
@@ -323,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
             } else if (appartientALaListe(coordPion, bordBas)) {
+                //Orientation a haut
                 console.log("Le bord est le bord bas");
                 let orientationInverse = 'rotate(0deg)';
 
@@ -1141,807 +1146,810 @@ document.addEventListener('DOMContentLoaded', function() {
     pousserButton.id = 'pousser-button';
     pousserButton.classList.add('rotation-button');
     pousserButton.addEventListener('click', () => {
-        let puissancePerso = 2;
-        let puissanceAdversaire = 0;
-        const couleur = pionSelectionne.getAttribute('couleur');
-        const couleurInverse = couleur === 'rouge' ? 'bleu' : 'rouge';
+        if (pionSelectionne.getAttribute('couleur') == tourBleu ? 'bleu' : 'rouge') {
+            let puissancePerso = 2;
+            let puissanceAdversaire = 0;
+            const couleur = pionSelectionne.getAttribute('couleur');
+            const couleurInverse = couleur === 'rouge' ? 'bleu' : 'rouge';
 
-        //Premier cas : si la pièce est orientée vers le haut
-        if (obtenirOrientation(pionSelectionne) == 'rotate(0deg)') {
-            let orientationInverse = 'rotate(180deg)';
+            //Premier cas : si la pièce est orientée vers le haut
+            if (obtenirOrientation(pionSelectionne) == 'rotate(0deg)') {
+                let orientationInverse = 'rotate(180deg)';
 
-            function compterPuissanceDevant(regard) {
-                if (obtenirCoordonnees(regard.id)[0] == 0) {
-                    return puissanceAdversaire;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                        puissanceAdversaire++;
-                        return compterPuissanceDevant(obtenirPionDevant(regard));
-                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
-                    puissancePerso += 2;
-                    return compterPuissanceDevant(obtenirPionDevant(regard));
-                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
-                    puissanceAdversaire += 2;
-                    return compterPuissanceDevant(obtenirPionDevant(regard));
-                }
-            }
-            compterPuissanceDevant(obtenirPionDevant(pionSelectionne));
-
-            function nbPiecesDevant(regard, compteur = 0) {
-                if (regard == null) {
-                    return compteur;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                    compteur++;
-                    return compteur + nbPiecesDevant(obtenirPionDevant(regard));
-                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
-                    compteur ++;
-                    return compteur + nbPiecesDevant(obtenirPionDevant(regard));
-                }
-                return compteur;
-            }
-            console.log('Nombre de pièces devant : ', nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
-
-            function estDansBanc(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                if (appartientALaListe(coordonnees, position_banc_rouge) || appartientALaListe(coordonnees, position_banc_bleu)) {
-                    return true;
-                }
-                return false;
-            }
-
-            let nombreDePassages = 0;
-            function pousserPionDevant(regard) {
-                let pionDevant = obtenirPionDevant(regard);
-                let pionDevantDevant = obtenirPionDevant(pionDevant);
-                if (obtenirCoordonnees(pionDevantDevant.id)[0] == 0 && (pionDevant.getAttribute('couleur') == couleur || pionDevant.getAttribute('couleur') == couleurInverse)) {
-                    console.log('un pion est sur le bord');
-                    return;
-                }
-                if (nombreDePassages == 0) {
-                    if (pionDevant && pionDevantDevant) { 
-                        if (!estDansBanc(pionDevantDevant)) {                       
-                            pionDevantDevant.style.backgroundImage = pionDevant.style.backgroundImage;
-                            pionDevantDevant.setAttribute('couleur', pionDevant.getAttribute('couleur'));
-                            pionDevantDevant.style.transform = pionDevant.style.transform;
-                            pionDevantDevant.setAttribute('case_vide', 'false');
-                        }
-                        pionDevant.style.backgroundImage = regard.style.backgroundImage;
-                        pionDevant.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionDevant.style.transform = regard.style.transform;
-                        pionDevant.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                        nombreDePassages++;
-                    } else {
-                        retourPionBanc(pionDevantDevant);
-                        nombreDePassages++;
-                    }
-                } else {
-                    if (pionDevant) {
-                        pionDevant.style.backgroundImage = regard.style.backgroundImage;
-                        pionDevant.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionDevant.style.transform = regard.style.transform;
-                        pionDevant.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                    }
-                }
-            }
-
-            function faireSiPossibleSortirDevant(regard) {
-                if (obtenirCoordonnees(regard.id)[0] == 1) {
-                    if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
-                        retourPionBanc(regard);
-                        return;
+                function compterPuissanceDevant(regard) {
+                    if (obtenirCoordonnees(regard.id)[0] == 0) {
+                        return puissanceAdversaire;
                     } else if (regard.getAttribute('couleur') == 'caillou') {
-                        partieFinie();
-                        return;
+                            puissanceAdversaire++;
+                            return compterPuissanceDevant(obtenirPionDevant(regard));
+                    } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
+                        puissancePerso += 2;
+                        return compterPuissanceDevant(obtenirPionDevant(regard));
+                    } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
+                        puissanceAdversaire += 2;
+                        return compterPuissanceDevant(obtenirPionDevant(regard));
                     }
-                } else {
-                    return;
                 }
-            }
+                compterPuissanceDevant(obtenirPionDevant(pionSelectionne));
 
-            function mainPousserDevant(pionSelectionne, nbPieceDevant) {
-                if (nbPieceDevant == 0) {
-                    console.log('Il n\'y a pas de pièce devant');
-                    return;
-                } else if (nbPieceDevant == 1) {
-                    let pionDevant = obtenirPionDevant(pionSelectionne);
-                    if (pionDevant) {
-                        if (estDansBanc(pionDevant)) {
-                            console.log('Il n\'y a pas de pièce devant');
-                            return;
+                function nbPiecesDevant(regard, compteur = 0) {
+                    if (regard == null) {
+                        return compteur;
+                    } else if (regard.getAttribute('couleur') == 'caillou') {
+                        compteur++;
+                        return compteur + nbPiecesDevant(obtenirPionDevant(regard));
+                    } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                        compteur ++;
+                        return compteur + nbPiecesDevant(obtenirPionDevant(regard));
+                    }
+                    return compteur;
+                }
+                console.log('Nombre de pièces devant : ', nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
+
+                function estDansBanc(regard) {
+                    const coordonnees = obtenirCoordonnees(regard.id);
+                    if (appartientALaListe(coordonnees, position_banc_rouge) || appartientALaListe(coordonnees, position_banc_bleu)) {
+                        return true;
+                    }
+                    return false;
+                }
+
+                let nombreDePassages = 0;
+                function pousserPionDevant(regard) {
+                    let pionDevant = obtenirPionDevant(regard);
+                    let pionDevantDevant = obtenirPionDevant(pionDevant);
+                    if (obtenirCoordonnees(pionDevantDevant.id)[0] == 0 && (pionDevant.getAttribute('couleur') == couleur || pionDevant.getAttribute('couleur') == couleurInverse)) {
+                        console.log('un pion est sur le bord');
+                        return;
+                    }
+                    if (nombreDePassages == 0) {
+                        if (pionDevant && pionDevantDevant) { 
+                            if (!estDansBanc(pionDevantDevant)) {                       
+                                pionDevantDevant.style.backgroundImage = pionDevant.style.backgroundImage;
+                                pionDevantDevant.setAttribute('couleur', pionDevant.getAttribute('couleur'));
+                                pionDevantDevant.style.transform = pionDevant.style.transform;
+                                pionDevantDevant.setAttribute('case_vide', 'false');
+                            }
+                            pionDevant.style.backgroundImage = regard.style.backgroundImage;
+                            pionDevant.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionDevant.style.transform = regard.style.transform;
+                            pionDevant.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                            nombreDePassages++;
                         } else {
-                            faireSiPossibleSortirDevant(pionDevant);
-                            pousserPionDevant(pionSelectionne);
+                            retourPionBanc(pionDevantDevant);
+                            nombreDePassages++;
+                        }
+                    } else {
+                        if (pionDevant) {
+                            pionDevant.style.backgroundImage = regard.style.backgroundImage;
+                            pionDevant.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionDevant.style.transform = regard.style.transform;
+                            pionDevant.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                        }
+                    }
+                }
+
+                function faireSiPossibleSortirDevant(regard) {
+                    if (obtenirCoordonnees(regard.id)[0] == 1) {
+                        if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
+                            retourPionBanc(regard);
+                            return;
+                        } else if (regard.getAttribute('couleur') == 'caillou') {
+                            partieFinie();
                             return;
                         }
                     } else {
-                        console.log('Erreur: pionDevant est null');
-                        console.log('pionDevant', pionDevant);
                         return;
                     }
-                } else if (nbPieceDevant == 2) {
-                    let pionDevant = obtenirPionDevant(pionSelectionne);
-                    let pionDevant2 = obtenirPionDevant(pionDevant);
-                    if (pionDevant && pionDevant2) {
-                        if (estDansBanc(pionDevant2)) {
-                            console.log('La pièce2 est dans le banc');
-                            faireSiPossibleSortirDevant(pionDevant);
-                            pousserPionDevant(pionSelectionne);
-                            return;
+                }
+
+                function mainPousserDevant(pionSelectionne, nbPieceDevant) {
+                    if (nbPieceDevant == 0) {
+                        console.log('Il n\'y a pas de pièce devant');
+                        return;
+                    } else if (nbPieceDevant == 1) {
+                        let pionDevant = obtenirPionDevant(pionSelectionne);
+                        if (pionDevant) {
+                            if (estDansBanc(pionDevant)) {
+                                console.log('Il n\'y a pas de pièce devant');
+                                return;
+                            } else {
+                                faireSiPossibleSortirDevant(pionDevant);
+                                pousserPionDevant(pionSelectionne);
+                                return;
+                            }
                         } else {
-                            faireSiPossibleSortirDevant(pionDevant2);
-                            pousserPionDevant(pionDevant);
-                            pousserPionDevant(pionSelectionne);
+                            console.log('Erreur: pionDevant est null');
+                            console.log('pionDevant', pionDevant);
                             return;
                         }
-                    } else {
-                        console.log('Erreur: pionDevant ou pionDevant2 est null');
-                        console.log('pionDevant', pionDevant);
-                        console.log('pionDevant2', pionDevant2);
-                        return;
-                    }
-                } else if (nbPieceDevant == 3) {
-                    let pionDevant = obtenirPionDevant(pionSelectionne);
-                    let pionDevant2 = obtenirPionDevant(pionDevant);
-                    let pionDevant3 = obtenirPionDevant(pionDevant2);
-                    if (pionDevant && pionDevant2 && pionDevant3) {
-                        if (estDansBanc(pionDevant3)) {
-                            console.log('La pièce3 est dans le banc');
-                            faireSiPossibleSortirDevant(pionDevant2);
-                            pousserPionDevant(pionDevant);
-                            pousserPionDevant(pionSelectionne);
-                            return;
+                    } else if (nbPieceDevant == 2) {
+                        let pionDevant = obtenirPionDevant(pionSelectionne);
+                        let pionDevant2 = obtenirPionDevant(pionDevant);
+                        if (pionDevant && pionDevant2) {
+                            if (estDansBanc(pionDevant2)) {
+                                console.log('La pièce2 est dans le banc');
+                                faireSiPossibleSortirDevant(pionDevant);
+                                pousserPionDevant(pionSelectionne);
+                                return;
+                            } else {
+                                faireSiPossibleSortirDevant(pionDevant2);
+                                pousserPionDevant(pionDevant);
+                                pousserPionDevant(pionSelectionne);
+                                return;
+                            }
                         } else {
-                            faireSiPossibleSortirDevant(pionDevant3);
-                            pousserPionDevant(pionDevant2);
-                            pousserPionDevant(pionDevant);
-                            pousserPionDevant(pionSelectionne);
+                            console.log('Erreur: pionDevant ou pionDevant2 est null');
+                            console.log('pionDevant', pionDevant);
+                            console.log('pionDevant2', pionDevant2);
                             return;
                         }
-                    } else {
-                        console.log('Erreur: pionDevant, pionDevant2 ou pionDevant3 est null');
-                        console.log('pionDevant', pionDevant);
-                        console.log('pionDevant2', pionDevant2);
-                        console.log('pionDevant3', pionDevant3);
-                        return;
-                    }
-                } else if (nbPieceDevant == 4) {
-                    let pionDevant = obtenirPionDevant(pionSelectionne);
-                    let pionDevant2 = obtenirPionDevant(pionDevant);
-                    let pionDevant3 = obtenirPionDevant(pionDevant2);
-                    let pionDevant4 = obtenirPionDevant(pionDevant3);
-                    if (pionDevant && pionDevant2 && pionDevant3 && pionDevant4) {
-                        if (estDansBanc(pionDevant4)) {
-                            console.log('La pièce4 est dans le banc');
-                            faireSiPossibleSortirDevant(pionDevant3);
-                            pousserPionDevant(pionDevant2);
-                            pousserPionDevant(pionDevant);
-                            pousserPionDevant(pionSelectionne);
-                            return;
+                    } else if (nbPieceDevant == 3) {
+                        let pionDevant = obtenirPionDevant(pionSelectionne);
+                        let pionDevant2 = obtenirPionDevant(pionDevant);
+                        let pionDevant3 = obtenirPionDevant(pionDevant2);
+                        if (pionDevant && pionDevant2 && pionDevant3) {
+                            if (estDansBanc(pionDevant3)) {
+                                console.log('La pièce3 est dans le banc');
+                                faireSiPossibleSortirDevant(pionDevant2);
+                                pousserPionDevant(pionDevant);
+                                pousserPionDevant(pionSelectionne);
+                                return;
+                            } else {
+                                faireSiPossibleSortirDevant(pionDevant3);
+                                pousserPionDevant(pionDevant2);
+                                pousserPionDevant(pionDevant);
+                                pousserPionDevant(pionSelectionne);
+                                return;
+                            }
                         } else {
+                            console.log('Erreur: pionDevant, pionDevant2 ou pionDevant3 est null');
+                            console.log('pionDevant', pionDevant);
+                            console.log('pionDevant2', pionDevant2);
+                            console.log('pionDevant3', pionDevant3);
+                            return;
+                        }
+                    } else if (nbPieceDevant == 4) {
+                        let pionDevant = obtenirPionDevant(pionSelectionne);
+                        let pionDevant2 = obtenirPionDevant(pionDevant);
+                        let pionDevant3 = obtenirPionDevant(pionDevant2);
+                        let pionDevant4 = obtenirPionDevant(pionDevant3);
+                        if (pionDevant && pionDevant2 && pionDevant3 && pionDevant4) {
+                            if (estDansBanc(pionDevant4)) {
+                                console.log('La pièce4 est dans le banc');
+                                faireSiPossibleSortirDevant(pionDevant3);
+                                pousserPionDevant(pionDevant2);
+                                pousserPionDevant(pionDevant);
+                                pousserPionDevant(pionSelectionne);
+                                return;
+                            } else {
+                                faireSiPossibleSortirDevant(pionDevant4);
+                                pousserPionDevant(pionDevant3);
+                                pousserPionDevant(pionDevant2);
+                                pousserPionDevant(pionDevant);
+                                pousserPionDevant(pionSelectionne);
+                                return;
+                            }
+                        } else {
+                            console.log('Erreur: pionDevant, pionDevant2, pionDevant3 ou pionDevant4 est null');
+                            console.log('pionDevant', pionDevant);
+                            console.log('pionDevant2', pionDevant2);
+                            console.log('pionDevant3', pionDevant3);
+                            console.log('pionDevant4', pionDevant4);
+                            return;
+                        }
+                    } else if (nbPieceDevant == 5) {
+                        let pionDevant = obtenirPionDevant(pionSelectionne);
+                        let pionDevant2 = obtenirPionDevant(pionDevant);
+                        let pionDevant3 = obtenirPionDevant(pionDevant2);
+                        let pionDevant4 = obtenirPionDevant(pionDevant3);
+                        if (pionDevant && pionDevant2 && pionDevant3 && pionDevant4) {
                             faireSiPossibleSortirDevant(pionDevant4);
                             pousserPionDevant(pionDevant3);
                             pousserPionDevant(pionDevant2);
                             pousserPionDevant(pionDevant);
                             pousserPionDevant(pionSelectionne);
                             return;
+                        } else {
+                            console.log('Erreur: pionDevant, pionDevant2, pionDevant3 ou pionDevant4 est null');
+                            console.log('pionDevant', pionDevant);
+                            console.log('pionDevant2', pionDevant2);
+                            console.log('pionDevant3', pionDevant3);
+                            console.log('pionDevant4', pionDevant4);
+                            return;
                         }
-                    } else {
-                        console.log('Erreur: pionDevant, pionDevant2, pionDevant3 ou pionDevant4 est null');
-                        console.log('pionDevant', pionDevant);
-                        console.log('pionDevant2', pionDevant2);
-                        console.log('pionDevant3', pionDevant3);
-                        console.log('pionDevant4', pionDevant4);
-                        return;
-                    }
-                } else if (nbPieceDevant == 5) {
-                    let pionDevant = obtenirPionDevant(pionSelectionne);
-                    let pionDevant2 = obtenirPionDevant(pionDevant);
-                    let pionDevant3 = obtenirPionDevant(pionDevant2);
-                    let pionDevant4 = obtenirPionDevant(pionDevant3);
-                    if (pionDevant && pionDevant2 && pionDevant3 && pionDevant4) {
-                        faireSiPossibleSortirDevant(pionDevant4);
-                        pousserPionDevant(pionDevant3);
-                        pousserPionDevant(pionDevant2);
-                        pousserPionDevant(pionDevant);
-                        pousserPionDevant(pionSelectionne);
-                        return;
-                    } else {
-                        console.log('Erreur: pionDevant, pionDevant2, pionDevant3 ou pionDevant4 est null');
-                        console.log('pionDevant', pionDevant);
-                        console.log('pionDevant2', pionDevant2);
-                        console.log('pionDevant3', pionDevant3);
-                        console.log('pionDevant4', pionDevant4);
-                        return;
                     }
                 }
-            }
-            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
-                if (puissancePerso > puissanceAdversaire) {
-                    console.log('Poussée réussie');
-                    mainPousserDevant(pionSelectionne, nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
-                    terminerTour();
-                }
-            } else {
-                console.log('Ce n\'est pas votre tour');
-            }
-
-        //Deuxième cas : si la pièce est orientée vers le bas
-        } else if (obtenirOrientation(pionSelectionne) == 'rotate(180deg)') {
-            let orientationInverse = 'rotate(0deg)';
-            
-            function compterPuissanceDerriere(regard) {
-                if (obtenirCoordonnees(regard.id)[0] == 6) {
-                    return puissanceAdversaire;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                        puissanceAdversaire++;
-                        return compterPuissanceDerriere(obtenirPionDerriere(regard));
-                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
-                    puissancePerso += 2;
-                    return compterPuissanceDerriere(obtenirPionDerriere(regard));
-                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
-                    puissanceAdversaire += 2;
-                    return compterPuissanceDerriere(obtenirPionDerriere(regard));
-                }
-            }
-            compterPuissanceDerriere(obtenirPionDerriere(pionSelectionne));
-
-            function nbPiecesDerriere(regard, compteur = 0) {
-                if (regard == null) {
-                    return compteur;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                    compteur++;
-                    return compteur + nbPiecesDerriere(obtenirPionDerriere(regard));
-                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
-                    compteur ++;
-                    return compteur + nbPiecesDerriere(obtenirPionDerriere(regard));
-                }
-                return compteur;
-            }
-            console.log('Nombre de pièces derrière : ', nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
-
-            function estDansBanc(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                if (appartientALaListe(coordonnees, position_banc_rouge) || appartientALaListe(coordonnees, position_banc_bleu)) {
-                    return true;
-                }
-                return false;
-            }
-
-            let nombreDePassages = 0;
-            function pousserPionDerriere(regard) {
-                let pionDerriere = obtenirPionDerriere(regard);
-                let pionDerriereDerriere = obtenirPionDerriere(pionDerriere);
-                if (obtenirCoordonnees(pionDerriereDerriere.id)[0] == 6 && (pionDerriere.getAttribute('couleur') == couleur || pionDerriere.getAttribute('couleur') == couleurInverse)) {
-                    console.log('un pion est sur le bord');
-                    return;
-                }
-                if (nombreDePassages == 0) {
-                    if (pionDerriere && pionDerriereDerriere) {
-                        if (!estDansBanc(pionDerriereDerriere)) {
-                            pionDerriereDerriere.style.backgroundImage = pionDerriere.style.backgroundImage;
-                            pionDerriereDerriere.setAttribute('couleur', pionDerriere.getAttribute('couleur'));
-                            pionDerriereDerriere.style.transform = pionDerriere.style.transform;
-                            pionDerriereDerriere.setAttribute('case_vide', 'false');
-                        }
-                        pionDerriere.style.backgroundImage = regard.style.backgroundImage;
-                        pionDerriere.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionDerriere.style.transform = regard.style.transform;
-                        pionDerriere.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                        nombreDePassages++;
-                    } else {
-                        retourPionBanc(pionDerriereDerriere);
-                        nombreDePassages++;
+                if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                    if (puissancePerso > puissanceAdversaire) {
+                        console.log('Poussée réussie');
+                        mainPousserDevant(pionSelectionne, nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
+                        terminerTour();
                     }
                 } else {
-                    if (pionDerriere) {
-                        pionDerriere.style.backgroundImage = regard.style.backgroundImage;
-                        pionDerriere.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionDerriere.style.transform = regard.style.transform;
-                        pionDerriere.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                    }
+                    console.log('Ce n\'est pas votre tour');
                 }
-            }
 
-            function faireSiPossibleSortirDerriere(regard) {
-                if (obtenirCoordonnees(regard.id)[0] == 5) {
-                    if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
-                        retourPionBanc(regard);
-                        return;
+            //Deuxième cas : si la pièce est orientée vers le bas
+            } else if (obtenirOrientation(pionSelectionne) == 'rotate(180deg)') {
+                let orientationInverse = 'rotate(0deg)';
+                
+                function compterPuissanceDerriere(regard) {
+                    if (obtenirCoordonnees(regard.id)[0] == 6) {
+                        return puissanceAdversaire;
                     } else if (regard.getAttribute('couleur') == 'caillou') {
-                        partieFinie();
-                        return;
+                            puissanceAdversaire++;
+                            return compterPuissanceDerriere(obtenirPionDerriere(regard));
+                    } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
+                        puissancePerso += 2;
+                        return compterPuissanceDerriere(obtenirPionDerriere(regard));
+                    } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
+                        puissanceAdversaire += 2;
+                        return compterPuissanceDerriere(obtenirPionDerriere(regard));
                     }
-                } else {
-                    return;
                 }
-            }
+                compterPuissanceDerriere(obtenirPionDerriere(pionSelectionne));
 
-            function mainPousserDerriere(pionSelectionne, nbPieceDerriere) {
-                if (nbPieceDerriere == 0) {
-                    console.log('Il n\'y a pas de pièce derrière');
-                    return;
-                } else if (nbPieceDerriere == 1) {
-                    let pionDerriere = obtenirPionDerriere(pionSelectionne);
-                    if (pionDerriere) {
-                        if (estDansBanc(pionDerriere)) {
-                            console.log('Il n\'y a pas de pièce derrière');
-                            return;
+                function nbPiecesDerriere(regard, compteur = 0) {
+                    if (regard == null) {
+                        return compteur;
+                    } else if (regard.getAttribute('couleur') == 'caillou') {
+                        compteur++;
+                        return compteur + nbPiecesDerriere(obtenirPionDerriere(regard));
+                    } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                        compteur ++;
+                        return compteur + nbPiecesDerriere(obtenirPionDerriere(regard));
+                    }
+                    return compteur;
+                }
+                console.log('Nombre de pièces derrière : ', nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
+
+                function estDansBanc(regard) {
+                    const coordonnees = obtenirCoordonnees(regard.id);
+                    if (appartientALaListe(coordonnees, position_banc_rouge) || appartientALaListe(coordonnees, position_banc_bleu)) {
+                        return true;
+                    }
+                    return false;
+                }
+
+                let nombreDePassages = 0;
+                function pousserPionDerriere(regard) {
+                    let pionDerriere = obtenirPionDerriere(regard);
+                    let pionDerriereDerriere = obtenirPionDerriere(pionDerriere);
+                    if (obtenirCoordonnees(pionDerriereDerriere.id)[0] == 6 && (pionDerriere.getAttribute('couleur') == couleur || pionDerriere.getAttribute('couleur') == couleurInverse)) {
+                        console.log('un pion est sur le bord');
+                        return;
+                    }
+                    if (nombreDePassages == 0) {
+                        if (pionDerriere && pionDerriereDerriere) {
+                            if (!estDansBanc(pionDerriereDerriere)) {
+                                pionDerriereDerriere.style.backgroundImage = pionDerriere.style.backgroundImage;
+                                pionDerriereDerriere.setAttribute('couleur', pionDerriere.getAttribute('couleur'));
+                                pionDerriereDerriere.style.transform = pionDerriere.style.transform;
+                                pionDerriereDerriere.setAttribute('case_vide', 'false');
+                            }
+                            pionDerriere.style.backgroundImage = regard.style.backgroundImage;
+                            pionDerriere.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionDerriere.style.transform = regard.style.transform;
+                            pionDerriere.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                            nombreDePassages++;
                         } else {
-                            faireSiPossibleSortirDerriere(pionDerriere);
-                            pousserPionDerriere(pionSelectionne);
+                            retourPionBanc(pionDerriereDerriere);
+                            nombreDePassages++;
+                        }
+                    } else {
+                        if (pionDerriere) {
+                            pionDerriere.style.backgroundImage = regard.style.backgroundImage;
+                            pionDerriere.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionDerriere.style.transform = regard.style.transform;
+                            pionDerriere.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                        }
+                    }
+                }
+
+                function faireSiPossibleSortirDerriere(regard) {
+                    if (obtenirCoordonnees(regard.id)[0] == 5) {
+                        if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
+                            retourPionBanc(regard);
+                            return;
+                        } else if (regard.getAttribute('couleur') == 'caillou') {
+                            partieFinie();
                             return;
                         }
                     } else {
-                        console.log('Erreur: pionDerriere est null');
-                        console.log('pionDerriere', pionDerriere);
                         return;
                     }
-                } else if (nbPieceDerriere == 2) {
-                    let pionDerriere = obtenirPionDerriere(pionSelectionne);
-                    let pionDerriere2 = obtenirPionDerriere(pionDerriere);
-                    if (pionDerriere && pionDerriere2) {
-                        if (estDansBanc(pionDerriere2)) {
-                            console.log('La pièce2 est dans le banc');
-                            faireSiPossibleSortirDerriere(pionDerriere);
-                            pousserPionDerriere(pionSelectionne);
-                            return;
+                }
+
+                function mainPousserDerriere(pionSelectionne, nbPieceDerriere) {
+                    if (nbPieceDerriere == 0) {
+                        console.log('Il n\'y a pas de pièce derrière');
+                        return;
+                    } else if (nbPieceDerriere == 1) {
+                        let pionDerriere = obtenirPionDerriere(pionSelectionne);
+                        if (pionDerriere) {
+                            if (estDansBanc(pionDerriere)) {
+                                console.log('Il n\'y a pas de pièce derrière');
+                                return;
+                            } else {
+                                faireSiPossibleSortirDerriere(pionDerriere);
+                                pousserPionDerriere(pionSelectionne);
+                                return;
+                            }
                         } else {
-                            faireSiPossibleSortirDerriere(pionDerriere2);
-                            pousserPionDerriere(pionDerriere);
-                            pousserPionDerriere(pionSelectionne);
+                            console.log('Erreur: pionDerriere est null');
+                            console.log('pionDerriere', pionDerriere);
                             return;
                         }
-                    } else {
-                        console.log('Erreur: pionDerriere ou pionDerriere2 est null');
-                        console.log('pionDerriere', pionDerriere);
-                        console.log('pionDerriere2', pionDerriere2);
-                        return;
-                    }
-                } else if (nbPieceDerriere == 3) {
-                    let pionDerriere = obtenirPionDerriere(pionSelectionne);
-                    let pionDerriere2 = obtenirPionDerriere(pionDerriere);
-                    let pionDerriere3 = obtenirPionDerriere(pionDerriere2);
-                    if (pionDerriere && pionDerriere2 && pionDerriere3) {
-                        if (estDansBanc(pionDerriere3)) {
-                            console.log('La pièce3 est dans le banc');
-                            faireSiPossibleSortirDerriere(pionDerriere2);
-                            pousserPionDerriere(pionDerriere);
-                            pousserPionDerriere(pionSelectionne);
-                            return;
+                    } else if (nbPieceDerriere == 2) {
+                        let pionDerriere = obtenirPionDerriere(pionSelectionne);
+                        let pionDerriere2 = obtenirPionDerriere(pionDerriere);
+                        if (pionDerriere && pionDerriere2) {
+                            if (estDansBanc(pionDerriere2)) {
+                                console.log('La pièce2 est dans le banc');
+                                faireSiPossibleSortirDerriere(pionDerriere);
+                                pousserPionDerriere(pionSelectionne);
+                                return;
+                            } else {
+                                faireSiPossibleSortirDerriere(pionDerriere2);
+                                pousserPionDerriere(pionDerriere);
+                                pousserPionDerriere(pionSelectionne);
+                                return;
+                            }
                         } else {
-                            faireSiPossibleSortirDerriere(pionDerriere3);
-                            pousserPionDerriere(pionDerriere2);
-                            pousserPionDerriere(pionDerriere);
-                            pousserPionDerriere(pionSelectionne);
+                            console.log('Erreur: pionDerriere ou pionDerriere2 est null');
+                            console.log('pionDerriere', pionDerriere);
+                            console.log('pionDerriere2', pionDerriere2);
                             return;
                         }
-                    } else {
-                        console.log('Erreur: pionDerriere, pionDerriere2 ou pionDerriere3 est null');
-                        console.log('pionDerriere', pionDerriere);
-                        console.log('pionDerriere2', pionDerriere2);
-                        console.log('pionDerriere3', pionDerriere3);
-                        return;
-                    }
-                } else if (nbPieceDerriere == 4) {
-                    let pionDerriere = obtenirPionDerriere(pionSelectionne);
-                    let pionDerriere2 = obtenirPionDerriere(pionDerriere);
-                    let pionDerriere3 = obtenirPionDerriere(pionDerriere2);
-                    let pionDerriere4 = obtenirPionDerriere(pionDerriere3);
-                    if (pionDerriere && pionDerriere2 && pionDerriere3 && pionDerriere4) {
-                        if (estDansBanc(pionDerriere4)) {
-                            console.log('La pièce4 est dans le banc');
-                            faireSiPossibleSortirDerriere(pionDerriere3);
-                            pousserPionDerriere(pionDerriere2);
-                            pousserPionDerriere(pionDerriere);
-                            pousserPionDerriere(pionSelectionne);
-                            return;
+                    } else if (nbPieceDerriere == 3) {
+                        let pionDerriere = obtenirPionDerriere(pionSelectionne);
+                        let pionDerriere2 = obtenirPionDerriere(pionDerriere);
+                        let pionDerriere3 = obtenirPionDerriere(pionDerriere2);
+                        if (pionDerriere && pionDerriere2 && pionDerriere3) {
+                            if (estDansBanc(pionDerriere3)) {
+                                console.log('La pièce3 est dans le banc');
+                                faireSiPossibleSortirDerriere(pionDerriere2);
+                                pousserPionDerriere(pionDerriere);
+                                pousserPionDerriere(pionSelectionne);
+                                return;
+                            } else {
+                                faireSiPossibleSortirDerriere(pionDerriere3);
+                                pousserPionDerriere(pionDerriere2);
+                                pousserPionDerriere(pionDerriere);
+                                pousserPionDerriere(pionSelectionne);
+                                return;
+                            }
                         } else {
+                            console.log('Erreur: pionDerriere, pionDerriere2 ou pionDerriere3 est null');
+                            console.log('pionDerriere', pionDerriere);
+                            console.log('pionDerriere2', pionDerriere2);
+                            console.log('pionDerriere3', pionDerriere3);
+                            return;
+                        }
+                    } else if (nbPieceDerriere == 4) {
+                        let pionDerriere = obtenirPionDerriere(pionSelectionne);
+                        let pionDerriere2 = obtenirPionDerriere(pionDerriere);
+                        let pionDerriere3 = obtenirPionDerriere(pionDerriere2);
+                        let pionDerriere4 = obtenirPionDerriere(pionDerriere3);
+                        if (pionDerriere && pionDerriere2 && pionDerriere3 && pionDerriere4) {
+                            if (estDansBanc(pionDerriere4)) {
+                                console.log('La pièce4 est dans le banc');
+                                faireSiPossibleSortirDerriere(pionDerriere3);
+                                pousserPionDerriere(pionDerriere2);
+                                pousserPionDerriere(pionDerriere);
+                                pousserPionDerriere(pionSelectionne);
+                                return;
+                            } else {
+                                faireSiPossibleSortirDerriere(pionDerriere4);
+                                pousserPionDerriere(pionDerriere3);
+                                pousserPionDerriere(pionDerriere2);
+                                pousserPionDerriere(pionDerriere);
+                                pousserPionDerriere(pionSelectionne);
+                                return;
+                            }
+                        } else {
+                            console.log('Erreur: pionDerriere, pionDerriere2, pionDerriere3 ou pionDerriere4 est null');
+                            console.log('pionDerriere', pionDerriere);
+                            console.log('pionDerriere2', pionDerriere2);
+                            console.log('pionDerriere3', pionDerriere3);
+                            console.log('pionDerriere4', pionDerriere4);
+                            return;
+                        }
+                    } else if (nbPieceDerriere == 5) {
+                        let pionDerriere = obtenirPionDerriere(pionSelectionne);
+                        let pionDerriere2 = obtenirPionDerriere(pionDerriere);
+                        let pionDerriere3 = obtenirPionDerriere(pionDerriere2);
+                        let pionDerriere4 = obtenirPionDerriere(pionDerriere3);
+                        if (pionDerriere && pionDerriere2 && pionDerriere3 && pionDerriere4) {
                             faireSiPossibleSortirDerriere(pionDerriere4);
                             pousserPionDerriere(pionDerriere3);
                             pousserPionDerriere(pionDerriere2);
                             pousserPionDerriere(pionDerriere);
                             pousserPionDerriere(pionSelectionne);
                             return;
+                        } else {
+                            console.log('Erreur: pionDerriere, pionDerriere2, pionDerriere3 ou pionDerriere4 est null');
+                            console.log('pionDerriere', pionDerriere);
+                            console.log('pionDerriere2', pionDerriere2);
+                            console.log('pionDerriere3', pionDerriere3);
+                            console.log('pionDerriere4', pionDerriere4);
+                            return;
                         }
-                    } else {
-                        console.log('Erreur: pionDerriere, pionDerriere2, pionDerriere3 ou pionDerriere4 est null');
-                        console.log('pionDerriere', pionDerriere);
-                        console.log('pionDerriere2', pionDerriere2);
-                        console.log('pionDerriere3', pionDerriere3);
-                        console.log('pionDerriere4', pionDerriere4);
-                        return;
-                    }
-                } else if (nbPieceDerriere == 5) {
-                    let pionDerriere = obtenirPionDerriere(pionSelectionne);
-                    let pionDerriere2 = obtenirPionDerriere(pionDerriere);
-                    let pionDerriere3 = obtenirPionDerriere(pionDerriere2);
-                    let pionDerriere4 = obtenirPionDerriere(pionDerriere3);
-                    if (pionDerriere && pionDerriere2 && pionDerriere3 && pionDerriere4) {
-                        faireSiPossibleSortirDerriere(pionDerriere4);
-                        pousserPionDerriere(pionDerriere3);
-                        pousserPionDerriere(pionDerriere2);
-                        pousserPionDerriere(pionDerriere);
-                        pousserPionDerriere(pionSelectionne);
-                        return;
-                    } else {
-                        console.log('Erreur: pionDerriere, pionDerriere2, pionDerriere3 ou pionDerriere4 est null');
-                        console.log('pionDerriere', pionDerriere);
-                        console.log('pionDerriere2', pionDerriere2);
-                        console.log('pionDerriere3', pionDerriere3);
-                        console.log('pionDerriere4', pionDerriere4);
-                        return;
                     }
                 }
-            }
 
-            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
-                if (puissancePerso > puissanceAdversaire) {
-                    console.log('Poussée réussie');
-                    mainPousserDerriere(pionSelectionne, nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
-                    terminerTour();
+                if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                    if (puissancePerso > puissanceAdversaire) {
+                        console.log('Poussée réussie');
+                        mainPousserDerriere(pionSelectionne, nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
+                        terminerTour();
+                    }
+                } else {
+                    console.log('Ce n\'est pas votre tour');
                 }
-            } else {
-                console.log('Ce n\'est pas votre tour');
-            }
 
-        //Troisième cas : si la pièce est orientée vers la gauche
-        } else if (obtenirOrientation(pionSelectionne) == 'rotate(270deg)') {
-            let orientationInverse = 'rotate(90deg)';
-            
-            function compterPuissanceGauche(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 0) {
-                    return puissanceAdversaire;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                        puissanceAdversaire++;
+            //Troisième cas : si la pièce est orientée vers la gauche
+            } else if (obtenirOrientation(pionSelectionne) == 'rotate(270deg)') {
+                let orientationInverse = 'rotate(90deg)';
+                
+                function compterPuissanceGauche(regard) {
+                    if (obtenirCoordonnees(regard.id)[1] == 0) {
+                        return puissanceAdversaire;
+                    } else if (regard.getAttribute('couleur') == 'caillou') {
+                            puissanceAdversaire++;
+                            return compterPuissanceGauche(obtenirPionGauche(regard));
+                    } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
+                        puissancePerso += 2;
                         return compterPuissanceGauche(obtenirPionGauche(regard));
-                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
-                    puissancePerso += 2;
-                    return compterPuissanceGauche(obtenirPionGauche(regard));
-                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
-                    puissanceAdversaire += 2;
-                    return compterPuissanceGauche(obtenirPionGauche(regard));
-                }
-            }
-            compterPuissanceGauche(obtenirPionGauche(pionSelectionne));
-
-            function nbPiecesGauche(regard, compteur = 0) {
-                if (regard == null) {
-                    return compteur;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                    compteur++;
-                    return compteur + nbPiecesGauche(obtenirPionGauche(regard));
-                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
-                    compteur ++;
-                    return compteur + nbPiecesGauche(obtenirPionGauche(regard));
-                }
-                return compteur;
-            }
-            console.log('Nombre de pièces à gauche : ', nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
-
-            let nombreDePassages = 0;
-            function pousserPionGauche(regard) {
-                let pionGauche = obtenirPionGauche(regard);
-                let pionGaucheGauche = obtenirPionGauche(pionGauche);
-                if (nombreDePassages == 0) {
-                    if (pionGauche && pionGaucheGauche) {
-                        if (pionGaucheGauche != null) {
-                            console.log('pionGaucheGauche trouvé et non nul');
-                            pionGaucheGauche.style.backgroundImage = pionGauche.style.backgroundImage;
-                            pionGaucheGauche.setAttribute('couleur', pionGauche.getAttribute('couleur'));
-                            pionGaucheGauche.style.transform = pionGauche.style.transform;
-                            pionGaucheGauche.setAttribute('case_vide', 'false');
-                        }
-                        console.log('cas 1');
-                        pionGauche.style.backgroundImage = regard.style.backgroundImage;
-                        pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionGauche.style.transform = regard.style.transform;
-                        pionGauche.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                        nombreDePassages++;
-                    } else  if (pionGauche) {
-                        console.log('cas 1 bis');
-                        nombreDePassages++;
-                        pionGauche.style.backgroundImage = regard.style.backgroundImage;
-                        pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionGauche.style.transform = regard.style.transform;
-                        pionGauche.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                        
-                    }
-                } else {
-                    if (pionGauche) {
-                        console.log('cas 2');
-                        pionGauche.style.backgroundImage = regard.style.backgroundImage;
-                        pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionGauche.style.transform = regard.style.transform;
-                        pionGauche.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
+                    } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
+                        puissanceAdversaire += 2;
+                        return compterPuissanceGauche(obtenirPionGauche(regard));
                     }
                 }
-            }
+                compterPuissanceGauche(obtenirPionGauche(pionSelectionne));
 
-            function faireSiPossibleSortirGauche(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 0) {
-                    if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
-                        retourPionBanc(regard);
-                        return;
+                function nbPiecesGauche(regard, compteur = 0) {
+                    if (regard == null) {
+                        return compteur;
                     } else if (regard.getAttribute('couleur') == 'caillou') {
-                        partieFinie();
+                        compteur++;
+                        return compteur + nbPiecesGauche(obtenirPionGauche(regard));
+                    } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                        compteur ++;
+                        return compteur + nbPiecesGauche(obtenirPionGauche(regard));
+                    }
+                    return compteur;
+                }
+                console.log('Nombre de pièces à gauche : ', nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
+
+                let nombreDePassages = 0;
+                function pousserPionGauche(regard) {
+                    let pionGauche = obtenirPionGauche(regard);
+                    let pionGaucheGauche = obtenirPionGauche(pionGauche);
+                    if (nombreDePassages == 0) {
+                        if (pionGauche && pionGaucheGauche) {
+                            if (pionGaucheGauche != null) {
+                                console.log('pionGaucheGauche trouvé et non nul');
+                                pionGaucheGauche.style.backgroundImage = pionGauche.style.backgroundImage;
+                                pionGaucheGauche.setAttribute('couleur', pionGauche.getAttribute('couleur'));
+                                pionGaucheGauche.style.transform = pionGauche.style.transform;
+                                pionGaucheGauche.setAttribute('case_vide', 'false');
+                            }
+                            console.log('cas 1');
+                            pionGauche.style.backgroundImage = regard.style.backgroundImage;
+                            pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionGauche.style.transform = regard.style.transform;
+                            pionGauche.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                            nombreDePassages++;
+                        } else  if (pionGauche) {
+                            console.log('cas 1 bis');
+                            nombreDePassages++;
+                            pionGauche.style.backgroundImage = regard.style.backgroundImage;
+                            pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionGauche.style.transform = regard.style.transform;
+                            pionGauche.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                            
+                        }
+                    } else {
+                        if (pionGauche) {
+                            console.log('cas 2');
+                            pionGauche.style.backgroundImage = regard.style.backgroundImage;
+                            pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionGauche.style.transform = regard.style.transform;
+                            pionGauche.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                        }
+                    }
+                }
+
+                function faireSiPossibleSortirGauche(regard) {
+                    if (obtenirCoordonnees(regard.id)[1] == 0) {
+                        if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
+                            retourPionBanc(regard);
+                            return;
+                        } else if (regard.getAttribute('couleur') == 'caillou') {
+                            partieFinie();
+                            return;
+                        }
+                    } else {
                         return;
                     }
+                }
+
+                function mainPousserGauche(pionSelectionne, nbPieceGauche) {
+                    if (nbPieceGauche == 0) {
+                        console.log('Il n\'y a pas de pièce à gauche');
+                        return;
+                    } else if (nbPieceGauche == 1) {
+                        let pionGauche = obtenirPionGauche(pionSelectionne);
+                        if (pionGauche != null) {
+                            console.log('MAIS PORQUOI');
+                            faireSiPossibleSortirGauche(pionGauche);
+                            pousserPionGauche(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionGauche est null');
+                            console.log('pionGauche', pionGauche);
+                        }
+                    } else if (nbPieceGauche == 2) {
+                        let pionGauche = obtenirPionGauche(pionSelectionne);
+                        let pionGauche2 = obtenirPionGauche(pionGauche);
+                        if (pionGauche != null && pionGauche2 != null) {
+                            faireSiPossibleSortirGauche(pionGauche2);
+                            pousserPionGauche(pionGauche);
+                            pousserPionGauche(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionGauche ou pionGauche2 est null');
+                            console.log('pionGauche', pionGauche);
+                            console.log('pionGauche2', pionGauche2);
+                        }
+                    } else if (nbPieceGauche == 3) {
+                        let pionGauche = obtenirPionGauche(pionSelectionne);
+                        let pionGauche2 = obtenirPionGauche(pionGauche);
+                        let pionGauche3 = obtenirPionGauche(pionGauche2);
+                        if (pionGauche != null && pionGauche2 != null && pionGauche3 != null) {
+                            faireSiPossibleSortirGauche(pionGauche3);
+                            pousserPionGauche(pionGauche2);
+                            pousserPionGauche(pionGauche);
+                            pousserPionGauche(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionGauche, pionGauche2 ou pionGauche3 est null');
+                            console.log('pionGauche', pionGauche);
+                            console.log('pionGauche2', pionGauche2);
+                            console.log('pionGauche3', pionGauche3);
+                        }
+                    } else if (nbPieceGauche == 4) {
+                        let pionGauche = obtenirPionGauche(pionSelectionne);
+                        let pionGauche2 = obtenirPionGauche(pionGauche);
+                        let pionGauche3 = obtenirPionGauche(pionGauche2);
+                        let pionGauche4 = obtenirPionGauche(pionGauche3);
+                        if (pionGauche != null && pionGauche2 != null && pionGauche3 != null && pionGauche4 != null) {
+                            faireSiPossibleSortirGauche(pionGauche4);
+                            pousserPionGauche(pionGauche3);
+                            pousserPionGauche(pionGauche2);
+                            pousserPionGauche(pionGauche);
+                            pousserPionGauche(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionGauche, pionGauche2, pionGauche3 ou pionGauche4 est null');
+                            console.log('pionGauche', pionGauche);
+                            console.log('pionGauche2', pionGauche2);
+                            console.log('pionGauche3', pionGauche3);
+                            console.log('pionGauche4', pionGauche4);
+                        }
+                    }
+                }
+
+                if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                    if (puissancePerso > puissanceAdversaire) {
+                        console.log('Poussée réussie');
+                        mainPousserGauche(pionSelectionne, nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
+                        terminerTour();
+                    }
                 } else {
-                    return;
+                    console.log('Ce n\'est pas votre tour');
                 }
-            }
 
-            function mainPousserGauche(pionSelectionne, nbPieceGauche) {
-                if (nbPieceGauche == 0) {
-                    console.log('Il n\'y a pas de pièce à gauche');
-                    return;
-                } else if (nbPieceGauche == 1) {
-                    let pionGauche = obtenirPionGauche(pionSelectionne);
-                    if (pionGauche != null) {
-                        console.log('MAIS PORQUOI');
-                        faireSiPossibleSortirGauche(pionGauche);
-                        pousserPionGauche(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionGauche est null');
-                        console.log('pionGauche', pionGauche);
-                    }
-                } else if (nbPieceGauche == 2) {
-                    let pionGauche = obtenirPionGauche(pionSelectionne);
-                    let pionGauche2 = obtenirPionGauche(pionGauche);
-                    if (pionGauche != null && pionGauche2 != null) {
-                        faireSiPossibleSortirGauche(pionGauche2);
-                        pousserPionGauche(pionGauche);
-                        pousserPionGauche(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionGauche ou pionGauche2 est null');
-                        console.log('pionGauche', pionGauche);
-                        console.log('pionGauche2', pionGauche2);
-                    }
-                } else if (nbPieceGauche == 3) {
-                    let pionGauche = obtenirPionGauche(pionSelectionne);
-                    let pionGauche2 = obtenirPionGauche(pionGauche);
-                    let pionGauche3 = obtenirPionGauche(pionGauche2);
-                    if (pionGauche != null && pionGauche2 != null && pionGauche3 != null) {
-                        faireSiPossibleSortirGauche(pionGauche3);
-                        pousserPionGauche(pionGauche2);
-                        pousserPionGauche(pionGauche);
-                        pousserPionGauche(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionGauche, pionGauche2 ou pionGauche3 est null');
-                        console.log('pionGauche', pionGauche);
-                        console.log('pionGauche2', pionGauche2);
-                        console.log('pionGauche3', pionGauche3);
-                    }
-                } else if (nbPieceGauche == 4) {
-                    let pionGauche = obtenirPionGauche(pionSelectionne);
-                    let pionGauche2 = obtenirPionGauche(pionGauche);
-                    let pionGauche3 = obtenirPionGauche(pionGauche2);
-                    let pionGauche4 = obtenirPionGauche(pionGauche3);
-                    if (pionGauche != null && pionGauche2 != null && pionGauche3 != null && pionGauche4 != null) {
-                        faireSiPossibleSortirGauche(pionGauche4);
-                        pousserPionGauche(pionGauche3);
-                        pousserPionGauche(pionGauche2);
-                        pousserPionGauche(pionGauche);
-                        pousserPionGauche(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionGauche, pionGauche2, pionGauche3 ou pionGauche4 est null');
-                        console.log('pionGauche', pionGauche);
-                        console.log('pionGauche2', pionGauche2);
-                        console.log('pionGauche3', pionGauche3);
-                        console.log('pionGauche4', pionGauche4);
-                    }
-                }
-            }
-
-            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
-                if (puissancePerso > puissanceAdversaire) {
-                    console.log('Poussée réussie');
-                    mainPousserGauche(pionSelectionne, nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
-                    terminerTour();
-                }
-            } else {
-                console.log('Ce n\'est pas votre tour');
-            }
-
-        //Quatrième cas : si la pièce est orientée vers la droite
-        } else if (obtenirOrientation(pionSelectionne) == 'rotate(90deg)') {
-            let orientationInverse = 'rotate(270deg)';
-            
-            function compterPuissanceDroite(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 4) {
-                    return puissanceAdversaire;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                        puissanceAdversaire++;
+            //Quatrième cas : si la pièce est orientée vers la droite
+            } else if (obtenirOrientation(pionSelectionne) == 'rotate(90deg)') {
+                let orientationInverse = 'rotate(270deg)';
+                
+                function compterPuissanceDroite(regard) {
+                    if (obtenirCoordonnees(regard.id)[1] == 4) {
+                        return puissanceAdversaire;
+                    } else if (regard.getAttribute('couleur') == 'caillou') {
+                            puissanceAdversaire++;
+                            return compterPuissanceDroite(obtenirPionDroite(regard));
+                    } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
+                        puissancePerso += 2;
                         return compterPuissanceDroite(obtenirPionDroite(regard));
-                } else if (regard.getAttribute('couleur') == couleur && obtenirOrientation(regard) == obtenirOrientation(pionSelectionne)) {
-                    puissancePerso += 2;
-                    return compterPuissanceDroite(obtenirPionDroite(regard));
-                } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
-                    puissanceAdversaire += 2;
-                    return compterPuissanceDroite(obtenirPionDroite(regard));
-                }
-            }
-            compterPuissanceDroite(obtenirPionDroite(pionSelectionne));
-
-            function nbPiecesDroite(regard, compteur = 0) {
-                if (regard == null) {
-                    return compteur;
-                } else if (regard.getAttribute('couleur') == 'caillou') {
-                    compteur++;
-                    return compteur + nbPiecesDroite(obtenirPionDroite(regard));
-                } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
-                    compteur ++;
-                    return compteur + nbPiecesDroite(obtenirPionDroite(regard));
-                }
-                return compteur;
-            }
-            console.log('Nombre de pièces à droite : ', nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
-
-            let nombreDePassages = 0;
-            function pousserPionDroite(regard) {
-                let pionDroite = obtenirPionDroite(regard);
-                let pionDroiteDroite = obtenirPionDroite(pionDroite);
-                if (nombreDePassages == 0) {
-                    if (pionDroite && pionDroiteDroite) {
-                        if (pionDroiteDroite != null) {
-                            console.log('pionDroiteDroite trouvé et non nul');
-                            pionDroiteDroite.style.backgroundImage = pionDroite.style.backgroundImage;
-                            pionDroiteDroite.setAttribute('couleur', pionDroite.getAttribute('couleur'));
-                            pionDroiteDroite.style.transform = pionDroite.style.transform;
-                            pionDroiteDroite.setAttribute('case_vide', 'false');
-                        }
-                        console.log('cas 1');
-                        pionDroite.style.backgroundImage = regard.style.backgroundImage;
-                        pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionDroite.style.transform = regard.style.transform;
-                        pionDroite.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                        nombreDePassages++;
-                    } else  if (pionDroite) {
-                        console.log('cas 1 bis');
-                        nombreDePassages++;
-                        pionDroite.style.backgroundImage = regard.style.backgroundImage;
-                        pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionDroite.style.transform = regard.style.transform;
-                        pionDroite.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
-                        
-                    }
-                } else {
-                    if (pionDroite) {
-                        console.log('cas 2');
-                        pionDroite.style.backgroundImage = regard.style.backgroundImage;
-                        pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
-                        pionDroite.style.transform = regard.style.transform;
-                        pionDroite.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = null;
-                        regard.setAttribute('couleur', null);
-                        regard.style.transform = '';
-                        regard.setAttribute('case_vide', 'true');
+                    } else if (regard.getAttribute('couleur') != couleur && obtenirOrientation(regard) == orientationInverse) {
+                        puissanceAdversaire += 2;
+                        return compterPuissanceDroite(obtenirPionDroite(regard));
                     }
                 }
-            }
+                compterPuissanceDroite(obtenirPionDroite(pionSelectionne));
 
-            function faireSiPossibleSortirDroite(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 4) {
-                    if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
-                        retourPionBanc(regard);
-                        return;
+                function nbPiecesDroite(regard, compteur = 0) {
+                    if (regard == null) {
+                        return compteur;
                     } else if (regard.getAttribute('couleur') == 'caillou') {
-                        partieFinie();
+                        compteur++;
+                        return compteur + nbPiecesDroite(obtenirPionDroite(regard));
+                    } else if (regard.getAttribute('couleur') == couleurInverse || regard.getAttribute('couleur') == couleur) {
+                        compteur ++;
+                        return compteur + nbPiecesDroite(obtenirPionDroite(regard));
+                    }
+                    return compteur;
+                }
+                console.log('Nombre de pièces à droite : ', nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
+
+                let nombreDePassages = 0;
+                function pousserPionDroite(regard) {
+                    let pionDroite = obtenirPionDroite(regard);
+                    let pionDroiteDroite = obtenirPionDroite(pionDroite);
+                    if (nombreDePassages == 0) {
+                        if (pionDroite && pionDroiteDroite) {
+                            if (pionDroiteDroite != null) {
+                                console.log('pionDroiteDroite trouvé et non nul');
+                                pionDroiteDroite.style.backgroundImage = pionDroite.style.backgroundImage;
+                                pionDroiteDroite.setAttribute('couleur', pionDroite.getAttribute('couleur'));
+                                pionDroiteDroite.style.transform = pionDroite.style.transform;
+                                pionDroiteDroite.setAttribute('case_vide', 'false');
+                            }
+                            console.log('cas 1');
+                            pionDroite.style.backgroundImage = regard.style.backgroundImage;
+                            pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionDroite.style.transform = regard.style.transform;
+                            pionDroite.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                            nombreDePassages++;
+                        } else  if (pionDroite) {
+                            console.log('cas 1 bis');
+                            nombreDePassages++;
+                            pionDroite.style.backgroundImage = regard.style.backgroundImage;
+                            pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionDroite.style.transform = regard.style.transform;
+                            pionDroite.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                            
+                        }
+                    } else {
+                        if (pionDroite) {
+                            console.log('cas 2');
+                            pionDroite.style.backgroundImage = regard.style.backgroundImage;
+                            pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
+                            pionDroite.style.transform = regard.style.transform;
+                            pionDroite.setAttribute('case_vide', 'false');
+                            regard.style.backgroundImage = null;
+                            regard.setAttribute('couleur', null);
+                            regard.style.transform = '';
+                            regard.setAttribute('case_vide', 'true');
+                        }
+                    }
+                }
+
+                function faireSiPossibleSortirDroite(regard) {
+                    if (obtenirCoordonnees(regard.id)[1] == 4) {
+                        if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
+                            retourPionBanc(regard);
+                            return;
+                        } else if (regard.getAttribute('couleur') == 'caillou') {
+                            partieFinie();
+                            return;
+                        }
+                    } else {
                         return;
                     }
+                }
+
+                function mainPousserDroite(pionSelectionne, nbPieceDroite) {
+                    if (nbPieceDroite == 0) {
+                        console.log('Il n\'y a pas de pièce à droite');
+                        return;
+                    } else if (nbPieceDroite == 1) {
+                        let pionDroite = obtenirPionDroite(pionSelectionne);
+                        if (pionDroite != null) {
+                            console.log('MAIS PORQUOI');
+                            faireSiPossibleSortirDroite(pionDroite);
+                            pousserPionDroite(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionDroite est null');
+                            console.log('pionDroite', pionDroite);
+                        }
+                    } else if (nbPieceDroite == 2) {
+                        let pionDroite = obtenirPionDroite(pionSelectionne);
+                        let pionDroite2 = obtenirPionDroite(pionDroite);
+                        if (pionDroite != null && pionDroite2 != null) {
+                            faireSiPossibleSortirDroite(pionDroite2);
+                            pousserPionDroite(pionDroite);
+                            pousserPionDroite(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionDroite ou pionDroite2 est null');
+                            console.log('pionDroite', pionDroite);
+                            console.log('pionDroite2', pionDroite2);
+                        }
+                    } else if (nbPieceDroite == 3) {
+                        let pionDroite = obtenirPionDroite(pionSelectionne);
+                        let pionDroite2 = obtenirPionDroite(pionDroite);
+                        let pionDroite3 = obtenirPionDroite(pionDroite2);
+                        if (pionDroite != null && pionDroite2 != null && pionDroite3 != null) {
+                            faireSiPossibleSortirDroite(pionDroite3);
+                            pousserPionDroite(pionDroite2);
+                            pousserPionDroite(pionDroite);
+                            pousserPionDroite(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionDroite, pionDroite2 ou pionDroite3 est null');
+                            console.log('pionDroite', pionDroite);
+                            console.log('pionDroite2', pionDroite2);
+                            console.log('pionDroite3', pionDroite3);
+                        }
+                    } else if (nbPieceDroite == 4) {
+                        let pionDroite = obtenirPionDroite(pionSelectionne);
+                        let pionDroite2 = obtenirPionDroite(pionDroite);
+                        let pionDroite3 = obtenirPionDroite(pionDroite2);
+                        let pionDroite4 = obtenirPionDroite(pionDroite3);
+                        if (pionDroite != null && pionDroite2 != null && pionDroite3 != null && pionDroite4 != null) {
+                            faireSiPossibleSortirDroite(pionDroite4);
+                            pousserPionDroite(pionDroite3);
+                            pousserPionDroite(pionDroite2);
+                            pousserPionDroite(pionDroite);
+                            pousserPionDroite(pionSelectionne);
+                        } else {
+                            console.log('Erreur: pionDroite, pionDroite2, pionDroite3 ou pionDroite4 est null');
+                            console.log('pionDroite', pionDroite);
+                            console.log('pionDroite2', pionDroite2);
+                            console.log('pionDroite3', pionDroite3);
+                            console.log('pionDroite4', pionDroite4);
+                        }
+                    }
+                }
+
+                if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                    if (puissancePerso > puissanceAdversaire) {
+                        console.log('Poussée réussie');
+                        mainPousserDroite(pionSelectionne, nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
+                        terminerTour();
+                    }
                 } else {
-                    return;
+                    console.log('Ce n\'est pas votre tour');
                 }
             }
-
-            function mainPousserDroite(pionSelectionne, nbPieceDroite) {
-                if (nbPieceDroite == 0) {
-                    console.log('Il n\'y a pas de pièce à droite');
-                    return;
-                } else if (nbPieceDroite == 1) {
-                    let pionDroite = obtenirPionDroite(pionSelectionne);
-                    if (pionDroite != null) {
-                        console.log('MAIS PORQUOI');
-                        faireSiPossibleSortirDroite(pionDroite);
-                        pousserPionDroite(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionDroite est null');
-                        console.log('pionDroite', pionDroite);
-                    }
-                } else if (nbPieceDroite == 2) {
-                    let pionDroite = obtenirPionDroite(pionSelectionne);
-                    let pionDroite2 = obtenirPionDroite(pionDroite);
-                    if (pionDroite != null && pionDroite2 != null) {
-                        faireSiPossibleSortirDroite(pionDroite2);
-                        pousserPionDroite(pionDroite);
-                        pousserPionDroite(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionDroite ou pionDroite2 est null');
-                        console.log('pionDroite', pionDroite);
-                        console.log('pionDroite2', pionDroite2);
-                    }
-                } else if (nbPieceDroite == 3) {
-                    let pionDroite = obtenirPionDroite(pionSelectionne);
-                    let pionDroite2 = obtenirPionDroite(pionDroite);
-                    let pionDroite3 = obtenirPionDroite(pionDroite2);
-                    if (pionDroite != null && pionDroite2 != null && pionDroite3 != null) {
-                        faireSiPossibleSortirDroite(pionDroite3);
-                        pousserPionDroite(pionDroite2);
-                        pousserPionDroite(pionDroite);
-                        pousserPionDroite(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionDroite, pionDroite2 ou pionDroite3 est null');
-                        console.log('pionDroite', pionDroite);
-                        console.log('pionDroite2', pionDroite2);
-                        console.log('pionDroite3', pionDroite3);
-                    }
-                } else if (nbPieceDroite == 4) {
-                    let pionDroite = obtenirPionDroite(pionSelectionne);
-                    let pionDroite2 = obtenirPionDroite(pionDroite);
-                    let pionDroite3 = obtenirPionDroite(pionDroite2);
-                    let pionDroite4 = obtenirPionDroite(pionDroite3);
-                    if (pionDroite != null && pionDroite2 != null && pionDroite3 != null && pionDroite4 != null) {
-                        faireSiPossibleSortirDroite(pionDroite4);
-                        pousserPionDroite(pionDroite3);
-                        pousserPionDroite(pionDroite2);
-                        pousserPionDroite(pionDroite);
-                        pousserPionDroite(pionSelectionne);
-                    } else {
-                        console.log('Erreur: pionDroite, pionDroite2, pionDroite3 ou pionDroite4 est null');
-                        console.log('pionDroite', pionDroite);
-                        console.log('pionDroite2', pionDroite2);
-                        console.log('pionDroite3', pionDroite3);
-                        console.log('pionDroite4', pionDroite4);
-                    }
-                }
-            }
-
-            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
-                if (puissancePerso > puissanceAdversaire) {
-                    console.log('Poussée réussie');
-                    mainPousserDroite(pionSelectionne, nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
-                    terminerTour();
-                }
-            } else {
-                console.log('Ce n\'est pas votre tour');
-            }
+        } else {
+            console.log('Ce n\'est pas votre pion');
         }
-
     });
     rotationContainer.appendChild(pousserButton);
 
@@ -1999,10 +2007,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //Fonction qui renvoit la pop up de fin de partie avec le gagnant
     //Cette fonction permet également de recommencer une partie
-    function partieFinie(gagnant) {
-        console.log('le couillou est dehors');
+    function partieFinie() {
+        console.log('le caillou est dehors');
+        let gagnant = !tourBleu ? 'rouge' : 'bleu';
         console.log('Le gagnant est : ', gagnant);
-        
+
         if (confirm('Le gagnant est : ' + gagnant + '\nVoulez-vous recommencer une partie ?')) {
             location.reload();
         }
