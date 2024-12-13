@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     plateau.style.backgroundImage = `url('assets/plateau.png')`;
 
+    //Création des cases
     for (let i = 0; i < nb_ligne; i++) {
         for (let j = 0; j < nb_col; j++) {
         const caseElement = document.createElement('div');
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    //Initialisation des cases rouges
     for (let x = 0; x < nb_col; x++) {
         var x_case = document.getElementById(`case-0-${x}`);
         x_case.style.backgroundImage = `url('assets/Rouge${x}.png')`;
@@ -35,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         x_case.setAttribute('case_vide', false);
     }
 
+    //Initialisation des cases bleues
     for (let y = 0; y < nb_col; y++) {
         var y_case = document.getElementById(`case-6-${y}`);
         y_case.style.backgroundImage = `url('assets/Bleu${y}.png')`;
@@ -44,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         y_case.setAttribute('case_vide', false);
     }
 
+    //Initialisation des cailloux
     for (let i = 1; i < 4; i++) {
         var k = aleatoire(1, 4);
         var caillou_case = document.getElementById(`case-3-${i}`);
@@ -52,6 +56,8 @@ document.addEventListener('DOMContentLoaded', function() {
         caillou_case.setAttribute('case_vide', false);
     }
 
+
+    //Préparations des constantes de variables
     const pions = document.getElementsByClassName('case');
     const position_mise_en_jeu = [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 4], [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], [5, 2], [5, 3], [5, 4]];
     const position_mise_en_jeu2 = [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 4], [3, 0], [3, 4], [4, 0], [4, 4], [5, 0], [5, 1], [5, 2], [5, 3], [5, 4]];
@@ -70,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log("Selectionnez une pièce a bouger :")
   
+    //Fonction pour marquer les casses accessibles pour la mise en jeu d'une pièce
     function marquerMiseEnJeu(pion, color, cases) {
         cases.forEach(([x, y]) => {
             const caseElement = document.getElementById(`case-${x}-${y}`);
@@ -79,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    //Fonction pour marquer les deux cases inaccessibles au début de la partie
     function marquerCasesInaccessibles(cases, image, isEmpty) {
         cases.forEach(([x, y]) => {
             const caseElement = document.getElementById(`case-${x}-${y}`);
@@ -89,12 +97,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    //Fonction pour enlever les bordures des pions
     function enleverBordures() {
         Array.from(pions).forEach(pion => {
             pion.style.border = 'none';
         });
     }
 
+    //Fonction pour gérer le retour d'un pion dans son banc
     function retourPionBanc(pion) {
         const couleur = pion.getAttribute('couleur');
         const banc = couleur === 'rouge' ? position_banc_rouge : position_banc_bleu;
@@ -115,6 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    //Action du premier click
     function PermierClickk(pion) {
         console.log("La pièce a été sélectionnée !");
         console.log("Selectionnez où vous voulez la déplacer :");
@@ -161,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 
+    //Action du second click
     function SecondClick (pion) {
         pionRef = pion;
         const coordPionSelectionne = obtenirCoordonnees(pionSelectionne.id);
@@ -208,6 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    //Fonction pour changer de joueur actif
     function terminerTour() {
         tourBleu = !tourBleu;
         tourTexte.innerText = tourBleu ? 'Tour: Bleu' : 'Tour: Rouge';
@@ -217,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pionSelectionne = null;
     }
 
+    //Si le premier click est fait, on appelle la fonction pour le sencond click
     Array.from(pions).forEach(pion => {
         pion.addEventListener('click', (event) => {
             if (!click1Done) {
@@ -233,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tourTexte.style.color = tourBleu ? 'blue' : 'red';
     rotationContainer.appendChild(tourTexte);
 
+    //Création des boutons de rotation et de leurs actions
     const orientations = {devant: '0', droite: '90', arriere: '180', gauche: '270'};
     Object.keys(orientations).forEach(orientation => {
         const button = document.createElement('button');
@@ -258,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rotationContainer.appendChild(button);
     });
 
+    //Création du bouton pour terminer le tour
     const finishButton = document.createElement('button');
     finishButton.innerText = 'Terminer';
     finishButton.id = 'finish-button';
@@ -268,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     rotationContainer.appendChild(finishButton);
 
+    //Création du bouton pour faire sortir un pion
     const backPion = document.createElement('button');
     backPion.innerText = 'Faire sortir le pion';
     backPion.id = 'back-button';
@@ -283,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     rotationContainer.appendChild(backPion);
 
+    //Création du bouton pour pousser un pion et toutes les fonctions associées
     const pousserButton = document.createElement('button');
     pousserButton.innerText = 'Pousser';
     pousserButton.id = 'pousser-button';
@@ -293,6 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const couleur = pionSelectionne.getAttribute('couleur');
         const couleurInverse = couleur === 'rouge' ? 'bleu' : 'rouge';
 
+        //Premier cas : si la pièce est orientée vers le haut
         if (obtenirOrientation(pionSelectionne) == 'rotate(0deg)') {
             let orientationInverse = 'rotate(180deg)';
 
@@ -518,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Ce n\'est pas votre tour');
             }
 
-
+        //Deuxième cas : si la pièce est orientée vers la droite
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(180deg)') {
             let orientationInverse = 'rotate(0deg)';
             
@@ -745,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Ce n\'est pas votre tour');
             }
 
-
+        //Troisième cas : si la pièce est orientée vers le bas
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(270deg)') {
             let orientationInverse = 'rotate(90deg)';
             
@@ -916,7 +935,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Ce n\'est pas votre tour');
             }
 
-
+        //Quatrième cas : si la pièce est orientée vers la gauche
         } else if (obtenirOrientation(pionSelectionne) == 'rotate(90deg)') {
             let orientationInverse = 'rotate(270deg)';
             
@@ -1091,6 +1110,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     rotationContainer.appendChild(pousserButton);
 
+    //Fonction pour obtenir le pion devant
     function obtenirPionDevant(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0] - 1;
@@ -1103,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    //Fonction pour obtenir le pion derrière
     function obtenirPionDerriere(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0] + 1;
@@ -1114,7 +1135,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return null;
         }
     }
-        
+
+    //Fonction pour obtenir le pion à gauche
     function obtenirPionGauche(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0];
@@ -1127,6 +1149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    //Fonction pour obtenir le pion à droite
     function obtenirPionDroite(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0];
@@ -1139,6 +1162,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    //Fonction qui renvoit la pop up de fin de partie avec le gagnant
+    //Cette fonction permet également de recommencer une partie
     function partieFinie(gagnant) {
         console.log('le couillou est dehors');
         console.log('Le gagnant est : ', gagnant);
@@ -1149,11 +1174,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
 });
-                
+
+//Fonction alléatoire utilisée dans le choix des cailloux (le choix des caillours est fait alléatoirement entre les 5 assets de cailloux)
 function aleatoire (a, b) {
     return Math.round(Math.random() * (b - a) + a)
 }
 
+//Fonction pour enlever un élément d'un tableau utilisé pour moddifier les constantes par rapport au nombre de tours passés
 function enleverElement(tab, element) {
     const index = tab.findIndex(item => item[0] === element[0] && item[1] === element[1]);
     if (index > -1) {
@@ -1162,6 +1189,7 @@ function enleverElement(tab, element) {
     return tab;
 }
 
+//Fonction qui renvoit les coordonnées d'un élément passé en paramètre
 function obtenirCoordonnees(id) {
     const parts = id.split('-');
     const x = parseInt(parts[1], 10);
@@ -1169,6 +1197,7 @@ function obtenirCoordonnees(id) {
     return [x, y];
 }
 
+//Fonction qui permet de comparer les tableaux, utilisé dans la fonction appartientALaListe
 function comparerTableaux(arr1, arr2) {
     if (arr1.length !== arr2.length) return false;
     for (let i = 0; i < arr1.length; i++) {
@@ -1177,6 +1206,7 @@ function comparerTableaux(arr1, arr2) {
     return true;
 }
 
+//Fonction qui renvoit si un élément appartient à une liste (dans notre cas on cherche a savoir si des coordonnées appartiennent à une constante créee auparavant)
 function appartientALaListe(coordonnees, liste) {
     for (let i = 0; i < liste.length; i++) {
         if (comparerTableaux(coordonnees, liste[i])) {
@@ -1186,6 +1216,7 @@ function appartientALaListe(coordonnees, liste) {
     return false;
 }
 
+//Fonction qui renvoit l'orientation d'un pion
 function obtenirOrientation(pion) {
     return pion.style.transform;
 }
