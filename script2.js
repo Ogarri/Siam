@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 
-    function FaireSecondClick(pion) {
+    function SecondClick (pion) {
         pionRef = pion;
         const coordPionSelectionne = obtenirCoordonnees(pionSelectionne.id);
         const coordPion = obtenirCoordonnees(pion.id);
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!click1Done) {
                 PermierClickk(pion);
             } else {
-                FaireSecondClick(pion);
+                SecondClick (pion);
             }
         });
     });
@@ -241,9 +241,13 @@ document.addEventListener('DOMContentLoaded', function() {
         button.style.gridArea = orientation;
         button.addEventListener('click', () => {
             if (pionSelectionne && !vientDeBouger) {
-                console.log(`Orientation choisie : ${orientations[orientation]}°`);
-                pionSelectionne.style.transform = `rotate(${orientations[orientation]}deg)`;
-                terminerTour();
+                if (tourBleu && pionSelectionne.getAttribute('couleur') === 'bleu' || !tourBleu && pionSelectionne.getAttribute('couleur') === 'rouge') {
+                    console.log(`Orientation choisie : ${orientations[orientation]}°`);
+                    pionSelectionne.style.transform = `rotate(${orientations[orientation]}deg)`;
+                    terminerTour();
+                } else {
+                    console.log("Ce n'est pas votre tour");
+                }
             } else if (vientDeBouger) {
                 console.log(`Orientation choisie : ${orientations[orientation]}°`);
                 pionRef.style.transform = `rotate(${orientations[orientation]}deg)`;
@@ -321,33 +325,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return compteur;
             }
             console.log('Nombre de pièces devant : ', nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
-
-            function estSurLeBordDevantPion(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-                console.log('Couleur:', couleur, 'Couleur inverse:', couleurInverse);
-            
-                if (coordonnees[0] == 1 && (couleurRegard == couleur || couleurRegard == couleurInverse)) {
-                    console.log('un pion est sur le bord');
-                    return true;
-                }
-                return false;
-            }
-            
-            function estSurLeBordDevantCaillou(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-            
-                if (coordonnees[0] == 1 && couleurRegard == 'caillou') {
-                    console.log('un caillou est sur le bord');
-                    return true;
-                }
-                return false;
-            }
 
             function estDansBanc(regard) {
                 const coordonnees = obtenirCoordonnees(regard.id);
@@ -531,11 +508,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-
-            if (puissancePerso > puissanceAdversaire) {
-                console.log('Poussée réussie');
-                mainPousserDevant(pionSelectionne, nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
-                terminerTour();
+            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                if (puissancePerso > puissanceAdversaire) {
+                    console.log('Poussée réussie');
+                    mainPousserDevant(pionSelectionne, nbPiecesDevant(obtenirPionDevant(pionSelectionne)));
+                    terminerTour();
+                }
+            } else {
+                console.log('Ce n\'est pas votre tour');
             }
 
 
@@ -571,33 +551,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return compteur;
             }
             console.log('Nombre de pièces derrière : ', nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
-
-            function estSurLeBordDerrierePion(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-                console.log('Couleur:', couleur, 'Couleur inverse:', couleurInverse);
-
-                if (coordonnees[0] == 5 && (couleurRegard == couleur || couleurRegard == couleurInverse)) {
-                    console.log('un pion est sur le bord');
-                    return true;
-                }
-                return false;
-            }
-
-            function estSurLeBordDerriereCaillou(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-
-                if (coordonnees[0] == 6 && couleurRegard == 'caillou') {
-                    console.log('un caillou est sur le bord');
-                    return true;
-                }
-                return false;
-            }
 
             function estDansBanc(regard) {
                 const coordonnees = obtenirCoordonnees(regard.id);
@@ -782,10 +735,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            if (puissancePerso > puissanceAdversaire) {
-                console.log('Poussée réussie');
-                mainPousserDerriere(pionSelectionne, nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
-                terminerTour();
+            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                if (puissancePerso > puissanceAdversaire) {
+                    console.log('Poussée réussie');
+                    mainPousserDerriere(pionSelectionne, nbPiecesDerriere(obtenirPionDerriere(pionSelectionne)));
+                    terminerTour();
+                }
+            } else {
+                console.log('Ce n\'est pas votre tour');
             }
 
 
@@ -822,34 +779,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             console.log('Nombre de pièces à gauche : ', nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
 
-            function estSurLeBordGauchePion(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-                console.log('Couleur:', couleur, 'Couleur inverse:', couleurInverse);
-
-                if (coordonnees[1] == 1 && (couleurRegard == couleur || couleurRegard == couleurInverse)) {
-                    console.log('un pion est sur le bord');
-                    return true;
-                }
-                return false;
-            }
-
-            function estSurLeBordGaucheCaillou(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-
-                if (coordonnees[1] == 0 && couleurRegard == 'caillou') {
-                    console.log('un caillou est sur le bord');
-                    return true;
-                }
-                return false;
-            }
-
-
             let nombreDePassages = 0;
             function pousserPionGauche(regard) {
                 let pionGauche = obtenirPionGauche(regard);
@@ -857,11 +786,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (nombreDePassages == 0) {
                     if (pionGauche && pionGaucheGauche) {
                         if (pionGaucheGauche != null) {
+                            console.log('pionGaucheGauche trouvé et non nul');
                             pionGaucheGauche.style.backgroundImage = pionGauche.style.backgroundImage;
                             pionGaucheGauche.setAttribute('couleur', pionGauche.getAttribute('couleur'));
                             pionGaucheGauche.style.transform = pionGauche.style.transform;
                             pionGaucheGauche.setAttribute('case_vide', 'false');
                         }
+                        console.log('cas 1');
                         pionGauche.style.backgroundImage = regard.style.backgroundImage;
                         pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionGauche.style.transform = regard.style.transform;
@@ -871,11 +802,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         regard.style.transform = '';
                         regard.setAttribute('case_vide', 'true');
                         nombreDePassages++;
-                    } else {
+                    } else  if (pionGauche) {
+                        console.log('cas 1 bis');
                         nombreDePassages++;
+                        pionGauche.style.backgroundImage = regard.style.backgroundImage;
+                        pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionGauche.style.transform = regard.style.transform;
+                        pionGauche.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                        
                     }
                 } else {
                     if (pionGauche) {
+                        console.log('cas 2');
                         pionGauche.style.backgroundImage = regard.style.backgroundImage;
                         pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionGauche.style.transform = regard.style.transform;
@@ -889,7 +831,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function faireSiPossibleSortirGauche(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 1) {
+                if (obtenirCoordonnees(regard.id)[1] == 0) {
                     if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
                         retourPionBanc(regard);
                         return;
@@ -964,10 +906,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            if (puissancePerso > puissanceAdversaire) {
-                console.log('Poussée réussie');
-                mainPousserGauche(pionSelectionne, nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
-                terminerTour();
+            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                if (puissancePerso > puissanceAdversaire) {
+                    console.log('Poussée réussie');
+                    mainPousserGauche(pionSelectionne, nbPiecesGauche(obtenirPionGauche(pionSelectionne)));
+                    terminerTour();
+                }
+            } else {
+                console.log('Ce n\'est pas votre tour');
             }
 
 
@@ -975,7 +921,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let orientationInverse = 'rotate(270deg)';
             
             function compterPuissanceDroite(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 6) {
+                if (obtenirCoordonnees(regard.id)[1] == 4) {
                     return puissanceAdversaire;
                 } else if (regard.getAttribute('couleur') == 'caillou') {
                         puissanceAdversaire++;
@@ -1004,57 +950,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             console.log('Nombre de pièces à droite : ', nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
 
-            function estSurLeBordDroitePion(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-                console.log('Couleur:', couleur, 'Couleur inverse:', couleurInverse);
-
-                if (coordonnees[1] == 5 && (couleurRegard == couleur || couleurRegard == couleurInverse)) {
-                    console.log('un pion est sur le bord');
-                    return true;
-                }
-                return false;
-            }
-
-            function estSurLeBordDroiteCaillou(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                const couleurRegard = regard.getAttribute('couleur');
-                console.log('Coordonnées:', coordonnees);
-                console.log('Couleur du regard:', couleurRegard);
-
-                if (coordonnees[1] == 6 && couleurRegard == 'caillou') {
-                    console.log('un caillou est sur le bord');
-                    return true;
-                }
-                return false;
-            }
-
-            function estDansBanc(regard) {
-                const coordonnees = obtenirCoordonnees(regard.id);
-                if (appartientALaListe(coordonnees, position_banc_rouge) || appartientALaListe(coordonnees, position_banc_bleu)) {
-                    return true;
-                }
-                return false;
-            }
-
             let nombreDePassages = 0;
             function pousserPionDroite(regard) {
                 let pionDroite = obtenirPionDroite(regard);
                 let pionDroiteDroite = obtenirPionDroite(pionDroite);
-                if (obtenirCoordonnees(pionDroiteDroite.id)[1] == 6 && (pionDroite.getAttribute('couleur') == couleur || pionDroite.getAttribute('couleur') == couleurInverse)) {
-                    console.log('un pion est sur le bord');
-                    return;
-                }
                 if (nombreDePassages == 0) {
                     if (pionDroite && pionDroiteDroite) {
-                        if (!estDansBanc(pionDroiteDroite)) {
+                        if (pionDroiteDroite != null) {
+                            console.log('pionDroiteDroite trouvé et non nul');
                             pionDroiteDroite.style.backgroundImage = pionDroite.style.backgroundImage;
                             pionDroiteDroite.setAttribute('couleur', pionDroite.getAttribute('couleur'));
                             pionDroiteDroite.style.transform = pionDroite.style.transform;
                             pionDroiteDroite.setAttribute('case_vide', 'false');
                         }
+                        console.log('cas 1');
                         pionDroite.style.backgroundImage = regard.style.backgroundImage;
                         pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionDroite.style.transform = regard.style.transform;
@@ -1064,12 +973,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         regard.style.transform = '';
                         regard.setAttribute('case_vide', 'true');
                         nombreDePassages++;
-                    } else {
-                        retourPionBanc(pionDroiteDroite);
+                    } else  if (pionDroite) {
+                        console.log('cas 1 bis');
                         nombreDePassages++;
+                        pionDroite.style.backgroundImage = regard.style.backgroundImage;
+                        pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
+                        pionDroite.style.transform = regard.style.transform;
+                        pionDroite.setAttribute('case_vide', 'false');
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
+                        
                     }
                 } else {
                     if (pionDroite) {
+                        console.log('cas 2');
                         pionDroite.style.backgroundImage = regard.style.backgroundImage;
                         pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionDroite.style.transform = regard.style.transform;
@@ -1083,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function faireSiPossibleSortirDroite(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 5) {
+                if (obtenirCoordonnees(regard.id)[1] == 4) {
                     if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
                         retourPionBanc(regard);
                         return;
@@ -1102,122 +1021,70 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 } else if (nbPieceDroite == 1) {
                     let pionDroite = obtenirPionDroite(pionSelectionne);
-                    if (pionDroite) {
-                        if (estDansBanc(pionDroite)) {
-                            console.log('Il n\'y a pas de pièce à droite');
-                            return;
-                        } else {
-                            faireSiPossibleSortirDroite(pionDroite);
-                            pousserPionDroite(pionSelectionne);
-                            return;
-                        }
+                    if (pionDroite != null) {
+                        console.log('MAIS PORQUOI');
+                        faireSiPossibleSortirDroite(pionDroite);
+                        pousserPionDroite(pionSelectionne);
                     } else {
                         console.log('Erreur: pionDroite est null');
                         console.log('pionDroite', pionDroite);
-                        return;
                     }
                 } else if (nbPieceDroite == 2) {
                     let pionDroite = obtenirPionDroite(pionSelectionne);
                     let pionDroite2 = obtenirPionDroite(pionDroite);
-                    if (pionDroite && pionDroite2) {
-                        if (estDansBanc(pionDroite2)) {
-                            console.log('La pièce2 est dans le banc');
-                            faireSiPossibleSortirDroite(pionDroite);
-                            pousserPionDroite(pionSelectionne);
-                            return;
-                        } else {
-                            faireSiPossibleSortirDroite(pionDroite2);
-                            pousserPionDroite(pionDroite);
-                            pousserPionDroite(pionSelectionne);
-                            return;
-                        }
+                    if (pionDroite != null && pionDroite2 != null) {
+                        faireSiPossibleSortirDroite(pionDroite2);
+                        pousserPionDroite(pionDroite);
+                        pousserPionDroite(pionSelectionne);
                     } else {
                         console.log('Erreur: pionDroite ou pionDroite2 est null');
                         console.log('pionDroite', pionDroite);
                         console.log('pionDroite2', pionDroite2);
-                        return;
                     }
                 } else if (nbPieceDroite == 3) {
                     let pionDroite = obtenirPionDroite(pionSelectionne);
                     let pionDroite2 = obtenirPionDroite(pionDroite);
                     let pionDroite3 = obtenirPionDroite(pionDroite2);
-                    if (pionDroite && pionDroite2 && pionDroite3) {
-                        if (estDansBanc(pionDroite3)) {
-                            console.log('La pièce3 est dans le banc');
-                            faireSiPossibleSortirDroite(pionDroite2);
-                            pousserPionDroite(pionDroite);
-                            pousserPionDroite(pionSelectionne);
-                            return;
-                        } else {
-                            faireSiPossibleSortirDroite(pionDroite3);
-                            pousserPionDroite(pionDroite2);
-                            pousserPionDroite(pionDroite);
-                            pousserPionDroite(pionSelectionne);
-                            return;
-                        }
+                    if (pionDroite != null && pionDroite2 != null && pionDroite3 != null) {
+                        faireSiPossibleSortirDroite(pionDroite3);
+                        pousserPionDroite(pionDroite2);
+                        pousserPionDroite(pionDroite);
+                        pousserPionDroite(pionSelectionne);
                     } else {
                         console.log('Erreur: pionDroite, pionDroite2 ou pionDroite3 est null');
                         console.log('pionDroite', pionDroite);
                         console.log('pionDroite2', pionDroite2);
                         console.log('pionDroite3', pionDroite3);
-                        return;
                     }
                 } else if (nbPieceDroite == 4) {
                     let pionDroite = obtenirPionDroite(pionSelectionne);
                     let pionDroite2 = obtenirPionDroite(pionDroite);
                     let pionDroite3 = obtenirPionDroite(pionDroite2);
                     let pionDroite4 = obtenirPionDroite(pionDroite3);
-                    if (pionDroite && pionDroite2 && pionDroite3 && pionDroite4) {
-                        if (estDansBanc(pionDroite4)) {
-                            console.log('La pièce4 est dans le banc');
-                            faireSiPossibleSortirDroite(pionDroite3);
-                            pousserPionDroite(pionDroite2);
-                            pousserPionDroite(pionDroite);
-                            pousserPionDroite(pionSelectionne);
-                            return;
-                        } else {
-                            faireSiPossibleSortirDroite(pionDroite4);
-                            pousserPionDroite(pionDroite3);
-                            pousserPionDroite(pionDroite2);
-                            pousserPionDroite(pionDroite);
-                            pousserPionDroite(pionSelectionne);
-                            return;
-                        }
-                    } else {
-                        console.log('Erreur: pionDroite, pionDroite2, pionDroite3 ou pionDroite4 est null');
-                        console.log('pionDroite', pionDroite);
-                        console.log('pionDroite2', pionDroite2);
-                        console.log('pionDroite3', pionDroite3);
-                        console.log('pionDroite4', pionDroite4);
-                        return;
-                    }
-                } else if (nbPieceDroite == 5) {
-                    let pionDroite = obtenirPionDroite(pionSelectionne);
-                    let pionDroite2 = obtenirPionDroite(pionDroite);
-                    let pionDroite3 = obtenirPionDroite(pionDroite2);
-                    let pionDroite4 = obtenirPionDroite(pionDroite3);
-                    if (pionDroite && pionDroite2 && pionDroite3 && pionDroite4) {
+                    if (pionDroite != null && pionDroite2 != null && pionDroite3 != null && pionDroite4 != null) {
                         faireSiPossibleSortirDroite(pionDroite4);
                         pousserPionDroite(pionDroite3);
                         pousserPionDroite(pionDroite2);
                         pousserPionDroite(pionDroite);
                         pousserPionDroite(pionSelectionne);
-                        return;
                     } else {
                         console.log('Erreur: pionDroite, pionDroite2, pionDroite3 ou pionDroite4 est null');
                         console.log('pionDroite', pionDroite);
                         console.log('pionDroite2', pionDroite2);
                         console.log('pionDroite3', pionDroite3);
                         console.log('pionDroite4', pionDroite4);
-                        return;
                     }
                 }
             }
 
-            if (puissancePerso > puissanceAdversaire) {
-                console.log('Poussée réussie');
-                mainPousserDroite(pionSelectionne, nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
-                terminerTour();
+            if ((tourBleu && couleur == 'bleu') || (!tourBleu && couleur == 'rouge')) {
+                if (puissancePerso > puissanceAdversaire) {
+                    console.log('Poussée réussie');
+                    mainPousserDroite(pionSelectionne, nbPiecesDroite(obtenirPionDroite(pionSelectionne)));
+                    terminerTour();
+                }
+            } else {
+                console.log('Ce n\'est pas votre tour');
             }
         }
 
@@ -1236,11 +1103,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function aPionDevant(pion) {
-        const pionDevant = obtenirPionDevant(pion);
-        return pionDevant && pionDevant.getAttribute('couleur') !== null;
-    }
-    
     function obtenirPionDerriere(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0] + 1;
@@ -1252,12 +1114,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return null;
         }
     }
-    
-    function aPionDerriere(pion) {
-        const pionDerriere = obtenirPionDerriere(pion);
-        return pionDerriere && pionDerriere.getAttribute('couleur') !== null;
-    }
-    
+        
     function obtenirPionGauche(pion) {
         const coord = obtenirCoordonnees(pion.id);
         const x = coord[0];
@@ -1268,11 +1125,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Hors du plateau');
             return null;
         }
-    }
-
-    function aPionGauche(pion) {
-        const pionGauche = obtenirPionGauche(pion);
-        return pionGauche && pionGauche.getAttribute('couleur') !== null;
     }
     
     function obtenirPionDroite(pion) {
@@ -1287,14 +1139,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function aPionDroite(pion) {
-        const pionDroite = obtenirPionDroite(pion);
-        return pionDroite && pionDroite.getAttribute('couleur') !== null;
-    }
-
     function partieFinie(gagnant) {
         console.log('le couillou est dehors');
         console.log('Le gagnant est : ', gagnant);
+        
+        if (confirm('Le gagnant est : ' + gagnant + '\nVoulez-vous recommencer une partie ?')) {
+            location.reload();
+        }
     }
     
 });
