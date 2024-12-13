@@ -221,6 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (peutFairePousséeInsertion(pion)) {
                 console.log("La poussée en insertion est possible !");
                 pousserInsertion(pion, pionSelectionne);
+                terminerTour();
             }
 
         }
@@ -398,15 +399,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionGauche.style.transform = regard.style.transform;
                         pionGauche.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(270deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                         nombreDePassages++;
                     } else  if (pionGauche) {
                         console.log('cas 1 bis');
@@ -415,15 +411,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionGauche.style.transform = regard.style.transform;
                         pionGauche.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(270deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 } else {
                     if (pionGauche) {
@@ -432,21 +423,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionGauche.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionGauche.style.transform = regard.style.transform;
                         pionGauche.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(270deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 }
             }
 
+            function pousserPionGaucheFin(pion) {
+                pion.style.border = 'none';
+                pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                pion.setAttribute('case_vide', 'false');
+                pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                pion.style.transform = 'rotate(270deg)';
+                pionSelectionne.style.border = 'none';
+                pionSelectionne.style.backgroundImage = null;
+                pionSelectionne.setAttribute('case_vide', 'true');
+                pionSelectionne.setAttribute('couleur', null);
+                pionSelectionne.style.transform = '';    
+            }
+
             function faireSiPossibleSortirGauche(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 1) {
+                if (obtenirCoordonnees(regard.id)[1] == 0) {
                     if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
                         retourPionBanc(regard);
                         return;
@@ -460,32 +459,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function mainPousserGauche(pion, nbPieceGauche) {
+                console.log('nbPieceGauche', nbPieceGauche);
                 if (nbPieceGauche == 0) {
                     console.log('Il n\'y a pas de pièce à gauche');
                     return;
                 } else if (nbPieceGauche == 1) {
                     let pionGauche = obtenirPionGauche(pion);
                     if (pionGauche != null) {
-                        console.log('MAIS PORQUOI');
                         faireSiPossibleSortirGauche(pionGauche);
                         pousserPionGauche(pion);
+                        pousserPionGaucheFin(pion);
                     } else {
                         console.log('Erreur: pionGauche est null');
                         console.log('pionGauche', pionGauche);
                     }
                 } else if (nbPieceGauche == 2) {
                     let pionGauche = obtenirPionGauche(pion);
+                    if (pionGauche != null) {
+                        faireSiPossibleSortirGauche(pionGauche);
+                        pousserPionGauche(pion);
+                        pousserPionGaucheFin(pion);
+                    } else {
+                        console.log('Erreur: pionGauche est null');
+                        console.log('pionGauche', pionGauche);
+                    }
+                } else if (nbPieceGauche == 3) {
+                    let pionGauche = obtenirPionGauche(pion);
                     let pionGauche2 = obtenirPionGauche(pionGauche);
                     if (pionGauche != null && pionGauche2 != null) {
                         faireSiPossibleSortirGauche(pionGauche2);
                         pousserPionGauche(pionGauche);
                         pousserPionGauche(pion);
+                        pousserPionGaucheFin(pion);
                     } else {
                         console.log('Erreur: pionGauche ou pionGauche2 est null');
                         console.log('pionGauche', pionGauche);
                         console.log('pionGauche2', pionGauche2);
                     }
-                } else if (nbPieceGauche == 3) {
+                } else if (nbPieceGauche == 4) {
                     let pionGauche = obtenirPionGauche(pion);
                     let pionGauche2 = obtenirPionGauche(pionGauche);
                     let pionGauche3 = obtenirPionGauche(pionGauche2);
@@ -494,13 +505,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionGauche(pionGauche2);
                         pousserPionGauche(pionGauche);
                         pousserPionGauche(pion);
+                        pousserPionGaucheFin(pion);
                     } else {
                         console.log('Erreur: pionGauche, pionGauche2 ou pionGauche3 est null');
                         console.log('pionGauche', pionGauche);
                         console.log('pionGauche2', pionGauche2);
                         console.log('pionGauche3', pionGauche3);
                     }
-                } else if (nbPieceGauche == 4) {
+                } else if (nbPieceGauche == 5) {
                     let pionGauche = obtenirPionGauche(pion);
                     let pionGauche2 = obtenirPionGauche(pionGauche);
                     let pionGauche3 = obtenirPionGauche(pionGauche2);
@@ -511,6 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionGauche(pionGauche2);
                         pousserPionGauche(pionGauche);
                         pousserPionGauche(pion);
+                        pousserPionGaucheFin(pion);
                     } else {
                         console.log('Erreur: pionGauche, pionGauche2, pionGauche3 ou pionGauche4 est null');
                         console.log('pionGauche', pionGauche);
@@ -557,15 +570,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionDroite.style.transform = regard.style.transform;
                         pionDroite.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(90deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                         nombreDePassages++;
                     } else  if (pionDroite) {
                         console.log('cas 1 bis');
@@ -574,15 +582,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionDroite.style.transform = regard.style.transform;
                         pionDroite.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(90deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 } else {
                     if (pionDroite) {
@@ -591,21 +594,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionDroite.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionDroite.style.transform = regard.style.transform;
                         pionDroite.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(90deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 }
             }
 
+            function pousserPionDroiteFin(pion) {
+                pion.style.border = 'none';
+                pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                pion.setAttribute('case_vide', 'false');
+                pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                pion.style.transform = 'rotate(90deg)';
+                pionSelectionne.style.border = 'none';
+                pionSelectionne.style.backgroundImage = null;
+                pionSelectionne.setAttribute('case_vide', 'true');
+                pionSelectionne.setAttribute('couleur', null);
+                pionSelectionne.style.transform = '';    
+            }
+
             function faireSiPossibleSortirDroite(regard) {
-                if (obtenirCoordonnees(regard.id)[1] == 3) {
+                if (obtenirCoordonnees(regard.id)[1] == 4) {
                     if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
                         retourPionBanc(regard);
                         return;
@@ -619,32 +630,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function mainPousserDroite(pion, nbPieceDroite) {
+                console.log('nbPieceDroite', nbPieceDroite);
                 if (nbPieceDroite == 0) {
                     console.log('Il n\'y a pas de pièce à droite');
                     return;
                 } else if (nbPieceDroite == 1) {
                     let pionDroite = obtenirPionDroite(pion);
                     if (pionDroite != null) {
-                        console.log('MAIS PORQUOI');
                         faireSiPossibleSortirDroite(pionDroite);
                         pousserPionDroite(pion);
+                        pousserPionDroiteFin(pion);
                     } else {
                         console.log('Erreur: pionDroite est null');
                         console.log('pionDroite', pionDroite);
                     }
                 } else if (nbPieceDroite == 2) {
                     let pionDroite = obtenirPionDroite(pion);
+                    if (pionDroite != null) {
+                        faireSiPossibleSortirDroite(pionDroite);
+                        pousserPionDroite(pion);
+                        pousserPionDroiteFin(pion);
+                    } else {
+                        console.log('Erreur: pionDroite est null');
+                        console.log('pionDroite', pionDroite);
+                    }
+                } else if (nbPieceDroite == 3) {
+                    let pionDroite = obtenirPionDroite(pion);
                     let pionDroite2 = obtenirPionDroite(pionDroite);
                     if (pionDroite != null && pionDroite2 != null) {
                         faireSiPossibleSortirDroite(pionDroite2);
                         pousserPionDroite(pionDroite);
                         pousserPionDroite(pion);
+                        pousserPionDroiteFin(pion);
                     } else {
                         console.log('Erreur: pionDroite ou pionDroite2 est null');
                         console.log('pionDroite', pionDroite);
                         console.log('pionDroite2', pionDroite2);
                     }
-                } else if (nbPieceDroite == 3) {
+                } else if (nbPieceDroite == 4) {
                     let pionDroite = obtenirPionDroite(pion);
                     let pionDroite2 = obtenirPionDroite(pionDroite);
                     let pionDroite3 = obtenirPionDroite(pionDroite2);
@@ -653,13 +676,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionDroite(pionDroite2);
                         pousserPionDroite(pionDroite);
                         pousserPionDroite(pion);
+                        pousserPionDroiteFin(pion);
                     } else {
                         console.log('Erreur: pionDroite, pionDroite2 ou pionDroite3 est null');
                         console.log('pionDroite', pionDroite);
                         console.log('pionDroite2', pionDroite2);
                         console.log('pionDroite3', pionDroite3);
                     }
-                } else if (nbPieceDroite == 4) {
+                } else if (nbPieceDroite == 5) {
                     let pionDroite = obtenirPionDroite(pion);
                     let pionDroite2 = obtenirPionDroite(pionDroite);
                     let pionDroite3 = obtenirPionDroite(pionDroite2);
@@ -670,6 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionDroite(pionDroite2);
                         pousserPionDroite(pionDroite);
                         pousserPionDroite(pion);
+                        pousserPionDroiteFin(pion);
                     } else {
                         console.log('Erreur: pionDroite, pionDroite2, pionDroite3 ou pionDroite4 est null');
                         console.log('pionDroite', pionDroite);
@@ -716,15 +741,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionBas.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionBas.style.transform = regard.style.transform;
                         pionBas.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(180deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                         nombreDePassages++;
                     } else  if (pionBas) {
                         console.log('cas 1 bis');
@@ -733,15 +753,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionBas.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionBas.style.transform = regard.style.transform;
                         pionBas.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(180deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 } else {
                     if (pionBas) {
@@ -750,21 +765,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionBas.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionBas.style.transform = regard.style.transform;
                         pionBas.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(180deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 }
             }
 
+            function pousserPionBasFin(pion) {
+                pion.style.border = 'none';
+                pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                pion.setAttribute('case_vide', 'false');
+                pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                pion.style.transform = 'rotate(180deg)';
+                pionSelectionne.style.border = 'none';
+                pionSelectionne.style.backgroundImage = null;
+                pionSelectionne.setAttribute('case_vide', 'true');
+                pionSelectionne.setAttribute('couleur', null);
+                pionSelectionne.style.transform = '';    
+            }
+
             function faireSiPossibleSortirBas(regard) {
-                if (obtenirCoordonnees(regard.id)[0] == 4) {
+                if (obtenirCoordonnees(regard.id)[0] == 5) {
                     if (regard.getAttribute('couleur') == couleur || regard.getAttribute('couleur') == couleurInverse) {
                         retourPionBanc(regard);
                         return;
@@ -778,32 +801,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function mainPousserBas(pion, nbPieceBas) {
+                console.log('nbPieceBas', nbPieceBas);
                 if (nbPieceBas == 0) {
                     console.log('Il n\'y a pas de pièce en bas');
                     return;
                 } else if (nbPieceBas == 1) {
                     let pionBas = obtenirPionDerriere(pion);
                     if (pionBas != null) {
-                        console.log('MAIS PORQUOI');
                         faireSiPossibleSortirBas(pionBas);
                         pousserPionBas(pion);
+                        pousserPionBasFin(pion);
                     } else {
                         console.log('Erreur: pionBas est null');
                         console.log('pionBas', pionBas);
                     }
                 } else if (nbPieceBas == 2) {
                     let pionBas = obtenirPionDerriere(pion);
+                    if (pionBas != null) {
+                        faireSiPossibleSortirBas(pionBas);
+                        pousserPionBas(pion);
+                        pousserPionBasFin(pion);
+                    } else {
+                        console.log('Erreur: pionBas est null');
+                        console.log('pionBas', pionBas);
+                    }
+                } else if (nbPieceBas == 3) {
+                    let pionBas = obtenirPionDerriere(pion);
                     let pionBas2 = obtenirPionDerriere(pionBas);
                     if (pionBas != null && pionBas2 != null) {
                         faireSiPossibleSortirBas(pionBas2);
                         pousserPionBas(pionBas);
                         pousserPionBas(pion);
+                        pousserPionBasFin(pion);
                     } else {
                         console.log('Erreur: pionBas ou pionBas2 est null');
                         console.log('pionBas', pionBas);
                         console.log('pionBas2', pionBas2);
                     }
-                } else if (nbPieceBas == 3) {
+                } else if (nbPieceBas == 4) {
                     let pionBas = obtenirPionDerriere(pion);
                     let pionBas2 = obtenirPionDerriere(pionBas);
                     let pionBas3 = obtenirPionDerriere(pionBas2);
@@ -812,13 +847,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionBas(pionBas2);
                         pousserPionBas(pionBas);
                         pousserPionBas(pion);
+                        pousserPionBasFin(pion);
                     } else {
                         console.log('Erreur: pionBas, pionBas2 ou pionBas3 est null');
                         console.log('pionBas', pionBas);
                         console.log('pionBas2', pionBas2);
                         console.log('pionBas3', pionBas3);
                     }
-                } else if (nbPieceBas == 4) {
+                } else if (nbPieceBas == 5) {
                     let pionBas = obtenirPionDerriere(pion);
                     let pionBas2 = obtenirPionDerriere(pionBas);
                     let pionBas3 = obtenirPionDerriere(pionBas2);
@@ -829,6 +865,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionBas(pionBas2);
                         pousserPionBas(pionBas);
                         pousserPionBas(pion);
+                        pousserPionBasFin(pion);
                     } else {
                         console.log('Erreur: pionBas, pionBas2, pionBas3 ou pionBas4 est null');
                         console.log('pionBas', pionBas);
@@ -875,15 +912,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionHaut.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionHaut.style.transform = regard.style.transform;
                         pionHaut.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(0deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                         nombreDePassages++;
                     } else  if (pionHaut) {
                         console.log('cas 1 bis');
@@ -892,15 +924,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionHaut.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionHaut.style.transform = regard.style.transform;
                         pionHaut.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(0deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 } else {
                     if (pionHaut) {
@@ -909,17 +936,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         pionHaut.setAttribute('couleur', regard.getAttribute('couleur'));
                         pionHaut.style.transform = regard.style.transform;
                         pionHaut.setAttribute('case_vide', 'false');
-                        regard.style.backgroundImage = pionSelectionne.style.backgroundImage;
-                        regard.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
-                        regard.style.transform = 'rotate(0deg)';
-                        regard.setAttribute('case_vide', 'false');
-                        pionSelectionne.style.border = 'none';
-                        pionSelectionne.style.backgroundImage = null;
-                        pionSelectionne.setAttribute('case_vide', 'true');
-                        pionSelectionne.setAttribute('couleur', null);
-                        pionSelectionne.style.transform = '';
+                        regard.style.backgroundImage = null;
+                        regard.setAttribute('couleur', null);
+                        regard.style.transform = '';
+                        regard.setAttribute('case_vide', 'true');
                     }
                 }
+            }
+
+            function pousserPionHautFin(pion) {
+                pion.style.border = 'none';
+                pion.style.backgroundImage = pionSelectionne.style.backgroundImage;
+                pion.setAttribute('case_vide', 'false');
+                pion.setAttribute('couleur', pionSelectionne.getAttribute('couleur'));
+                pion.style.transform = 'rotate(0deg)';
+                pionSelectionne.style.border = 'none';
+                pionSelectionne.style.backgroundImage = null;
+                pionSelectionne.setAttribute('case_vide', 'true');
+                pionSelectionne.setAttribute('couleur', null);
+                pionSelectionne.style.transform = '';    
             }
 
             function faireSiPossibleSortirHaut(regard) {
@@ -937,32 +972,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function mainPousserHaut(pion, nbPieceHaut) {
+                console.log('nbPieceHaut', nbPieceHaut);
                 if (nbPieceHaut == 0) {
                     console.log('Il n\'y a pas de pièce en haut');
                     return;
                 } else if (nbPieceHaut == 1) {
                     let pionHaut = obtenirPionDevant(pion);
                     if (pionHaut != null) {
-                        console.log('MAIS PORQUOI');
                         faireSiPossibleSortirHaut(pionHaut);
                         pousserPionHaut(pion);
+                        pousserPionHautFin(pion);
                     } else {
                         console.log('Erreur: pionHaut est null');
                         console.log('pionHaut', pionHaut);
                     }
                 } else if (nbPieceHaut == 2) {
                     let pionHaut = obtenirPionDevant(pion);
+                    if (pionHaut != null) {
+                        faireSiPossibleSortirHaut(pionHaut);
+                        pousserPionHaut(pion);
+                        pousserPionHautFin(pion);
+                    } else {
+                        console.log('Erreur: pionHaut est null');
+                        console.log('pionHaut', pionHaut);
+                    }
+                } else if (nbPieceHaut == 3) {
+                    let pionHaut = obtenirPionDevant(pion);
                     let pionHaut2 = obtenirPionDevant(pionHaut);
                     if (pionHaut != null && pionHaut2 != null) {
                         faireSiPossibleSortirHaut(pionHaut2);
                         pousserPionHaut(pionHaut);
                         pousserPionHaut(pion);
+                        pousserPionHautFin(pion);
                     } else {
                         console.log('Erreur: pionHaut ou pionHaut2 est null');
                         console.log('pionHaut', pionHaut);
                         console.log('pionHaut2', pionHaut2);
                     }
-                } else if (nbPieceHaut == 3) {
+                } else if (nbPieceHaut == 4) {
                     let pionHaut = obtenirPionDevant(pion);
                     let pionHaut2 = obtenirPionDevant(pionHaut);
                     let pionHaut3 = obtenirPionDevant(pionHaut2);
@@ -971,13 +1018,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionHaut(pionHaut2);
                         pousserPionHaut(pionHaut);
                         pousserPionHaut(pion);
+                        pousserPionHautFin(pion);
                     } else {
                         console.log('Erreur: pionHaut, pionHaut2 ou pionHaut3 est null');
                         console.log('pionHaut', pionHaut);
                         console.log('pionHaut2', pionHaut2);
                         console.log('pionHaut3', pionHaut3);
                     }
-                } else if (nbPieceHaut == 4) {
+                } else if (nbPieceHaut == 5) {
                     let pionHaut = obtenirPionDevant(pion);
                     let pionHaut2 = obtenirPionDevant(pionHaut);
                     let pionHaut3 = obtenirPionDevant(pionHaut2);
@@ -988,6 +1036,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         pousserPionHaut(pionHaut2);
                         pousserPionHaut(pionHaut);
                         pousserPionHaut(pion);
+                        pousserPionHautFin(pion);
                     } else {
                         console.log('Erreur: pionHaut, pionHaut2, pionHaut3 ou pionHaut4 est null');
                         console.log('pionHaut', pionHaut);
